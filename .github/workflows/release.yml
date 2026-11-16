@@ -1,0 +1,24 @@
+# Creates a draft GitHub release when you push a tag like v0.1.0. The signed,
+# notarized DMG is built on your Mac with scripts/build-release.sh and attached
+# by hand: signing certificates are not stored in CI.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --draft --title "Unrestor ${GITHUB_REF_NAME#v}" \
+            --notes "Attach Unrestor-${GITHUB_REF_NAME#v}.dmg and its SHA-256, then publish."

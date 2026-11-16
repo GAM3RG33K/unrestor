@@ -1,0 +1,7 @@
+Unrestor
+Copyright 2026 The Unrestor authors
+
+Unrestor began as a derivative of Let It Brew (https://github.com/ruban-24/letitbrew),
+Copyright 2026 Ruban, licensed under the Apache License 2.0. The privileged
+daemon, its hold coordinator, and the pmset and power-source readers are
+adapted from that project. Their original tests are carried over.

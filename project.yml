@@ -1,0 +1,155 @@
+# Source of truth for the Xcode project. Generate with `xcodegen generate`.
+# Replace TEAMID0000 (here and in BackgroundServiceEligibility.swift) with your
+# Apple Developer Team ID before building a signed app.
+name: Unrestor
+
+options:
+  createIntermediateGroups: true
+  deploymentTarget:
+    macOS: "14.0"
+
+configs:
+  Debug: debug
+  Release: release
+
+settings:
+  base:
+    DEVELOPMENT_TEAM: TEAMID0000
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_HARDENED_RUNTIME: true
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    SWIFT_VERSION: "6.0"
+    VERSIONING_SYSTEM: apple-generic
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 0.1.0
+
+targets:
+  UnrestorCore:
+    type: library.static
+    platform: macOS
+    sources: [{ path: Sources/UnrestorCore }]
+    settings:
+      base:
+        PRODUCT_NAME: UnrestorCore
+        PRODUCT_BUNDLE_IDENTIFIER: app.unrestor.core
+        SKIP_INSTALL: true
+
+  UnrestorDaemonCore:
+    type: library.static
+    platform: macOS
+    sources: [{ path: Sources/UnrestorDaemonCore }]
+    dependencies:
+      - target: UnrestorCore
+    settings:
+      base:
+        PRODUCT_NAME: UnrestorDaemonCore
+        PRODUCT_BUNDLE_IDENTIFIER: app.unrestor.daemon-core
+        SKIP_INSTALL: true
+
+  Unrestor:
+    type: application
+    platform: macOS
+    sources: [{ path: Sources/UnrestorApp }]
+    info:
+      path: Config/Unrestor-Info.plist
+      properties:
+        CFBundleDisplayName: "Unrestor"
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        LSUIElement: true
+        NSHighResolutionCapable: true
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: false
+        PRODUCT_NAME: "Unrestor"
+        PRODUCT_MODULE_NAME: Unrestor
+        EXECUTABLE_NAME: Unrestor
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: app.unrestor.dev
+          UNRESTOR_DAEMON_LABEL: app.unrestor.dev.daemon
+          UNRESTOR_DAEMON_PLIST: $(SRCROOT)/Config/LaunchDaemons/app.unrestor.dev.daemon.plist
+        Release:
+          PRODUCT_BUNDLE_IDENTIFIER: app.unrestor
+          UNRESTOR_DAEMON_LABEL: app.unrestor.daemon
+          UNRESTOR_DAEMON_PLIST: $(SRCROOT)/Config/LaunchDaemons/app.unrestor.daemon.plist
+    dependencies:
+      - target: UnrestorDaemon
+        embed: false
+      - target: UnrestorCLI
+        embed: false
+      - target: UnrestorDaemonCore
+      - target: UnrestorCore
+    postBuildScripts:
+      - name: Embed signed launch daemon, CLI, and legal files
+        basedOnDependencyAnalysis: false
+        script: |
+          set -eu
+          services_dir="$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Library/LaunchServices"
+          plists_dir="$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Library/LaunchDaemons"
+          helpers_dir="$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Helpers"
+          legal_dir="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/Legal"
+          /bin/mkdir -p "$services_dir" "$plists_dir" "$helpers_dir" "$legal_dir"
+          /usr/bin/install -m 755 "$BUILT_PRODUCTS_DIR/UnrestorDaemon" "$services_dir/UnrestorDaemon"
+          /usr/bin/install -m 755 "$BUILT_PRODUCTS_DIR/unrestor" "$helpers_dir/unrestor"
+          /usr/bin/install -m 644 "$UNRESTOR_DAEMON_PLIST" "$plists_dir/$UNRESTOR_DAEMON_LABEL.plist"
+          /usr/bin/install -m 644 "$SRCROOT/LICENSE" "$legal_dir/LICENSE"
+          /usr/bin/install -m 644 "$SRCROOT/NOTICE" "$legal_dir/NOTICE"
+          # Strip Finder metadata that codesign rejects in file-provider folders.
+          /usr/bin/xattr -cr "$TARGET_BUILD_DIR/$WRAPPER_NAME"
+
+  UnrestorDaemon:
+    type: tool
+    platform: macOS
+    sources: [{ path: Sources/UnrestorDaemon }]
+    dependencies:
+      - target: UnrestorDaemonCore
+      - target: UnrestorCore
+    settings:
+      base:
+        # A standalone launchd tool has no provisioning profile. Trust comes
+        # from the Apple-issued signature and Team ID.
+        CODE_SIGN_INJECT_BASE_ENTITLEMENTS: false
+        ENTITLEMENTS_REQUIRED: false
+        CREATE_INFOPLIST_SECTION_IN_BINARY: true
+        GENERATE_INFOPLIST_FILE: true
+        PRODUCT_NAME: UnrestorDaemon
+        SKIP_INSTALL: true
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: app.unrestor.dev.daemon
+        Release:
+          PRODUCT_BUNDLE_IDENTIFIER: app.unrestor.daemon
+
+  UnrestorCLI:
+    type: tool
+    platform: macOS
+    sources: [{ path: Sources/unrestor }]
+    dependencies:
+      - target: UnrestorCore
+    settings:
+      base:
+        CODE_SIGN_INJECT_BASE_ENTITLEMENTS: false
+        ENTITLEMENTS_REQUIRED: false
+        CREATE_INFOPLIST_SECTION_IN_BINARY: true
+        GENERATE_INFOPLIST_FILE: true
+        PRODUCT_NAME: unrestor
+        SKIP_INSTALL: true
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: app.unrestor.dev.cli
+        Release:
+          PRODUCT_BUNDLE_IDENTIFIER: app.unrestor.cli
+
+schemes:
+  Unrestor:
+    build:
+      targets:
+        Unrestor: all
+        UnrestorDaemon: all
+        UnrestorCLI: all
+    run:
+      config: Debug
+    archive:
+      config: Release
