@@ -55,6 +55,16 @@ private struct MenuContent: View {
                 EmptyView()
             }
 
+            if model.serviceNeedsUpdate {
+                divider
+                serviceUpdateRow.padding(16)
+            }
+
+            if let banner = updateBanner {
+                divider
+                banner.padding(16)
+            }
+
             let others = model.requests.filter { $0.id != HoldRequest.manualID }
             if !others.isEmpty {
                 divider
@@ -167,6 +177,77 @@ private struct MenuContent: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
+    private var serviceUpdateRow: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("The background service is out of date")
+                .font(.callout.weight(.semibold))
+            Text("It is version \(model.serviceVersion ?? "?"); this app is \(UnrestorVersion.current). Update it so they match. macOS asks for your password.")
+                .font(.callout).foregroundStyle(.secondary)
+            Button(model.installing ? "Updating…" : "Update Background Service…") { model.installService() }
+                .buttonStyle(.borderedProminent)
+                .disabled(model.installing)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// Shown only when there is something to say: an update, progress, or a failure.
+    private var updateBanner: AnyView? {
+        let updater = model.updater
+        switch updater.state {
+        case .available(let release):
+            return AnyView(VStack(alignment: .leading, spacing: 8) {
+                Text("Unrestor \(release.version.description) is available")
+                    .font(.callout.weight(.semibold))
+                Text("You have \(UnrestorVersion.current). Unrestor restarts to finish. A manual hold ends; commands you started keep running.")
+                    .font(.caption).foregroundStyle(.secondary)
+                HStack {
+                    Button("Download & Install") { Task { await updater.install() } }
+                        .buttonStyle(.borderedProminent)
+                    Button("What's New") { updater.openReleasePage() }
+                        .buttonStyle(.link)
+                }
+            }.frame(maxWidth: .infinity, alignment: .leading))
+        case .downloading, .verifying, .installing:
+            let text: String = {
+                switch updater.state {
+                case .downloading: "Downloading the update…"
+                case .verifying: "Checking the download…"
+                default: "Installing. Unrestor will restart."
+                }
+            }()
+            return AnyView(HStack(spacing: 10) {
+                ProgressView().controlSize(.small)
+                Text(text).font(.callout)
+                Spacer()
+            })
+        case .failed(let message, _):
+            return AnyView(VStack(alignment: .leading, spacing: 8) {
+                Text("Update problem").font(.callout.weight(.semibold))
+                Text(message).font(.callout).foregroundStyle(.secondary)
+                HStack {
+                    Button("Try Again") { Task { await updater.check() } }
+                    Button("Open Release Page") { updater.openReleasePage() }
+                }
+                .buttonStyle(.link)
+            }.frame(maxWidth: .infinity, alignment: .leading))
+        default:
+            return nil
+        }
+    }
+
+    private var updateStatusText: String {
+        switch model.updater.state {
+        case .checking: return "Checking for updates…"
+        case .upToDate: return "Up to date"
+        case .available: return "Update available"
+        default:
+            if let last = model.updater.lastChecked {
+                return "Checked " + last.formatted(.relative(presentation: .named))
+            }
+            return "Not checked yet"
+        }
+    }
+
     private var limits: some View {
         VStack(alignment: .leading, spacing: 8) {
             Toggle("Only while connected to power", isOn: $model.settings.onlyWhileConnectedToPower)
@@ -174,6 +255,7 @@ private struct MenuContent: View {
             Picker("Let Mac sleep below", selection: $model.settings.batteryFloor) {
                 ForEach([10, 20, 30, 40, 50], id: \.self) { Text("\($0)%").tag($0) }
             }
+            Toggle("Check for updates automatically", isOn: $model.settings.checkForUpdates)
         }
         .toggleStyle(.switch)
         .controlSize(.small)
@@ -181,6 +263,23 @@ private struct MenuContent: View {
     }
 
     private var footer: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Text("Unrestor \(UnrestorVersion.current)")
+                    .font(.caption).foregroundStyle(.secondary)
+                Text("·").font(.caption).foregroundStyle(.secondary)
+                Text(updateStatusText).font(.caption).foregroundStyle(.secondary)
+                Spacer()
+                Button("Check for Updates") { Task { await model.updater.check() } }
+                    .buttonStyle(.link)
+                    .font(.caption)
+                    .disabled(model.updater.isBusy)
+            }
+            footerControls
+        }
+    }
+
+    private var footerControls: some View {
         HStack {
             Toggle("Launch at login", isOn: Binding(
                 get: { model.launchAtLogin },

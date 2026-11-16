@@ -26,6 +26,12 @@ socket as a normal user. It does not cover `sudo unrestor install`, the launchd
 job, or the menu-bar UI; see the manual checks in
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Testing the updater
+
+Build a copy with an older `UnrestorVersion.current`, put it somewhere
+writable, and run `open -n Unrestor.app --args --update-now`. It checks GitHub,
+downloads and verifies the latest release, replaces itself, and relaunches.
+
 ## Icons
 
 Every icon comes from one definition in `scripts/build-icons.py` (an open eye

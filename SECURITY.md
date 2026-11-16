@@ -51,6 +51,21 @@ cannot vouch for who built it. Builds are made by GitHub Actions from this
 source; build it yourself with `scripts/make-app.sh` if you prefer. Anyone with
 administrator rights on the Mac can of course change anything.
 
+## The updater
+
+The app checks `api.github.com` for this project's latest release once a day,
+unless you turn that off. The request carries no version, id, or cookies. An
+update is downloaded over HTTPS from github.com only, checked against the
+SHA-256 published beside it, and verified as the expected app before it
+replaces the old one.
+
+That protects against a corrupt or truncated download. It does **not**
+authenticate the publisher: releases are ad-hoc signed, so there is no developer
+signature to check, and someone who controls the GitHub repository's releases
+could ship a malicious update. The root service is never replaced by the
+updater itself; the new app offers to re-run `sudo`-level install, which asks
+for your password.
+
 ## If sleep seems stuck
 
 1. Keep physical access to the Mac and save your work.

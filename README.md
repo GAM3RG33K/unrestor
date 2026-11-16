@@ -45,7 +45,9 @@ Unrestor is a safe wrapper around that switch:
   floor (default 20%, never below 10%), when the Mac runs hot, or when you chose
   power-only and unplug. The background service enforces these itself.
 - **Tool-agnostic.** Anything you can start from a terminal works.
-- **Local and minimal.** No account, no network, no telemetry.
+- **Local and minimal.** No account and no telemetry. The only network request
+  is an optional once-a-day look at this project's public release page, for
+  updates. Turn it off in the menu and the app never goes online.
 
 ## Install
 
@@ -126,6 +128,24 @@ command-line tool works without the app running.
 | The Mac still sleeps | `unrestor status` names the reason: low battery, heat, power-only, or no service. |
 | Check the system setting by hand | `pmset -g \| grep SleepDisabled` (1 means sleep is blocked) |
 | Sleep stays blocked after quitting everything | `sudo unrestor uninstall`. If it still reads 1 and you did not set it, `sudo pmset -a disablesleep 0`. |
+
+## Updates
+
+The menu-bar app checks GitHub once a day for a newer release (turn it off with
+**Check for updates automatically**, or press **Check for Updates** any time).
+When one exists, **Download & Install** fetches the DMG over HTTPS, checks it
+against the SHA-256 published beside it, verifies the new app, swaps it in, and
+restarts Unrestor. A manual hold ends when it restarts; commands you started
+with `unrestor run` keep running.
+
+The check sends nothing about you or your Mac: no version, no id, no cookies.
+It is not a signature check. Releases are not signed by a developer, so the
+checksum catches a corrupt download, not a compromised GitHub account.
+
+If the app asks to **Update Background Service**, do that: it makes the root
+service match the new app (macOS asks for your password).
+
+With Homebrew, `brew upgrade --cask unrestor` also works.
 
 ## Uninstall
 

@@ -16,6 +16,14 @@ enum ServiceState: Equatable {
 private final class DaemonLink: @unchecked Sendable {
     private let queue = DispatchQueue(label: "app.unrestor.daemon-link")
     private let client = DaemonClient()
+    private let lock = NSLock()
+    private var _serviceVersion: String?
+
+    /// The version the background service reported when we connected.
+    var serviceVersion: String? {
+        lock.lock(); defer { lock.unlock() }
+        return _serviceVersion
+    }
 
     enum Outcome: Sendable {
         case held, released(String), unavailable(DaemonClientError)
@@ -25,11 +33,13 @@ private final class DaemonLink: @unchecked Sendable {
         wantHold: Bool, settings: Settings,
         completion: @escaping @Sendable (Outcome) -> Void
     ) {
-        queue.async { [client] in
+        queue.async { [self, client] in
             do {
                 if !client.isConnected {
                     try client.connect()
-                    _ = try client.send(.hello)
+                    if case .hello(let version) = try client.send(.hello) {
+                        self.lock.lock(); self._serviceVersion = version; self.lock.unlock()
+                    }
                 }
                 if wantHold {
                     let reply = try client.send(.hold(
@@ -71,6 +81,8 @@ final class AppModel {
     private(set) var now = Date()
     private(set) var launchAtLogin = false
     private(set) var installing = false
+    private(set) var serviceVersion: String?
+    let updater = Updater()
     var settings: Settings {
         didSet { settingsStore.save(settings) }
     }
@@ -91,6 +103,15 @@ final class AppModel {
             Task { @MainActor in self?.tick() }
         }
         tick()
+        updater.startAutomaticChecks { [weak self] in self?.settings.checkForUpdates ?? false }
+        // `Unrestor --update-now`: check, and install straight away if newer.
+        // For scripted updates and for testing the update path end to end.
+        if CommandLine.arguments.contains("--update-now") {
+            Task { @MainActor in
+                await updater.check()
+                await updater.install()
+            }
+        }
     }
 
     func stop() {
@@ -198,8 +219,17 @@ final class AppModel {
         }
     }
 
+    /// True when the installed background service is older than this app, for
+    /// example right after an update. The new app can install its own copy.
+    var serviceNeedsUpdate: Bool {
+        guard service == .connected, let text = serviceVersion, let version = AppVersion(text)
+        else { return false }
+        return version < updater.current
+    }
+
     private func apply(_ outcome: DaemonLink.Outcome, wanted: Bool) {
         inFlight = false
+        serviceVersion = link.serviceVersion
         switch outcome {
         case .held:
             service = .connected

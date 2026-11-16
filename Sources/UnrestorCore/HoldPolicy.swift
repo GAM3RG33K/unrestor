@@ -6,8 +6,21 @@ public struct Settings: Codable, Equatable, Sendable {
     public var onlyWhileConnectedToPower = false
     /// Run in Low Power Mode while the hold is on, to save battery and heat.
     public var lowPowerWhileHeld = false
+    /// Ask GitHub once a day whether a newer release exists. Sends nothing about
+    /// you or your Mac; turn it off here and the app never contacts the network.
+    public var checkForUpdates = true
 
     public init() {}
+
+    // Older settings files lack newer keys; missing ones keep their defaults.
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let d = Settings()
+        batteryFloor = try c.decodeIfPresent(Int.self, forKey: .batteryFloor) ?? d.batteryFloor
+        onlyWhileConnectedToPower = try c.decodeIfPresent(Bool.self, forKey: .onlyWhileConnectedToPower) ?? d.onlyWhileConnectedToPower
+        lowPowerWhileHeld = try c.decodeIfPresent(Bool.self, forKey: .lowPowerWhileHeld) ?? d.lowPowerWhileHeld
+        checkForUpdates = try c.decodeIfPresent(Bool.self, forKey: .checkForUpdates) ?? d.checkForUpdates
+    }
 
     /// What the daemon will actually honor: it never accepts a floor below its
     /// hard minimum, so a client cannot talk it out of protecting the battery.

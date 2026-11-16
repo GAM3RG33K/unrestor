@@ -76,6 +76,22 @@ prompt):
 `sudo unrestor uninstall` boots the job out (which restores the setting),
 removes the files, and warns if sleep still reads as blocked.
 
+## Updates
+
+`UnrestorCore` holds the pure parts: `AppVersion` (numeric compare, final
+releases only), `ReleaseFeed` (parses GitHub's latest-release JSON, requires a
+DMG and a `.sha256`, restricts hosts to GitHub over HTTPS), `FileHash`, and
+`UpdateScript` (the shell script that swaps the app, arguments passed
+positionally so paths cannot inject commands). All of it is unit tested, and
+the script is run for real against temp folders, including the failure and
+"app never quit" paths.
+
+`UnrestorApp/Updater` does the I/O: an ephemeral `URLSession` (no cookies or
+cache), `hdiutil attach` to read the DMG, `codesign --verify`, and a detached
+`/bin/sh` that finishes the swap after the app exits. The updater never touches
+the root service; the app compares the service's version (from `HELLO`) with its
+own and offers to re-run the installer.
+
 ## The request files
 
 While a CLI command runs it also writes a small JSON file in

@@ -1,6 +1,15 @@
 # Release notes
 
-## 0.1.0 (unreleased)
+## Unreleased
+
+- In-app updates: a daily check of GitHub's release page (optional), then
+  **Download & Install** with a checksum and app verification, a safe swap, and
+  automatic restart.
+- A countdown in the menu and menu bar while awake under a time limit.
+- The Unrestor icon: an open eye with a crescent-moon pupil.
+- The app offers to update an older background service to match.
+
+## 0.1.0
 
 First release.
 
