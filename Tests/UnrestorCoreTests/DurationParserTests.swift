@@ -23,3 +23,12 @@ import Testing
     #expect(DurationParser.format(300) == "5m")
     #expect(DurationParser.format(20) == "20s")
 }
+
+@Test func formatsCountdownsAsAClock() {
+    #expect(DurationParser.clock(5_025) == "1:23:45")
+    #expect(DurationParser.clock(3_600) == "1:00:00")
+    #expect(DurationParser.clock(1_425) == "23:45")
+    #expect(DurationParser.clock(59.2) == "1:00")      // rounds up: never shows 0:00 while still held
+    #expect(DurationParser.clock(0) == "0:00")
+    #expect(DurationParser.clock(-5) == "0:00")
+}

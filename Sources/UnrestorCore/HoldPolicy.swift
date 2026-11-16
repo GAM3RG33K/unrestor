@@ -68,6 +68,16 @@ public enum HoldPolicy {
         return nil
     }
 
+    /// When the hold will end on its own, if every request has a time limit:
+    /// the latest of them. Nil when any request is open-ended (a manual hold
+    /// without a timer, or a command that ends when it ends) or none exist.
+    public static func holdEndsAt(_ requests: [HoldRequest]) -> Date? {
+        guard !requests.isEmpty else { return nil }
+        let ends = requests.map(\.expiresAt)
+        guard !ends.contains(where: { $0 == nil }) else { return nil }
+        return ends.compactMap { $0 }.max()
+    }
+
     static func describe(_ requests: [HoldRequest]) -> String {
         guard let first = requests.first else { return "" }
         if requests.count == 1 { return "Awake for \(first.label)" }

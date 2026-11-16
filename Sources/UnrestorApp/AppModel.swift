@@ -68,6 +68,7 @@ final class AppModel {
     private(set) var decision = HoldDecision(hold: false, reason: "Nothing is asking to stay awake")
     private(set) var requests: [HoldRequest] = []
     private(set) var power = IOKitPowerSource().current()
+    private(set) var now = Date()
     private(set) var launchAtLogin = false
     private(set) var installing = false
     var settings: Settings {
@@ -174,8 +175,16 @@ final class AppModel {
 
     // MARK: Polling
 
+    /// Time left until the hold ends by itself, while awake. Nil when it is
+    /// open-ended or not holding.
+    var countdown: TimeInterval? {
+        guard decision.hold, let end = HoldPolicy.holdEndsAt(requests) else { return nil }
+        return max(0, end.timeIntervalSince(now))
+    }
+
     private func tick() {
-        requests = store.activeRequests()
+        now = Date()
+        requests = store.activeRequests(now: now)
         power = IOKitPowerSource().current()
         decision = HoldPolicy.decide(active: requests, settings: settings, power: power)
         guard !inFlight else { return }

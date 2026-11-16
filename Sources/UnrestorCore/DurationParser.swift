@@ -39,4 +39,14 @@ public enum DurationParser {
         if minutes > 0 { return "\(minutes)m" }
         return "\(seconds)s"
     }
+
+    /// A countdown as a clock: "1:23:45", or "23:45" under an hour.
+    public static func clock(_ interval: TimeInterval) -> String {
+        let seconds = max(0, Int(interval.rounded(.up)))
+        let hours = seconds / 3_600
+        let minutes = (seconds % 3_600) / 60
+        let rest = seconds % 60
+        if hours > 0 { return String(format: "%d:%02d:%02d", hours, minutes, rest) }
+        return String(format: "%d:%02d", minutes, rest)
+    }
 }

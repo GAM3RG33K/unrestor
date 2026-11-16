@@ -9,8 +9,13 @@ struct UnrestorApp: App {
         MenuBarExtra {
             MenuContent(model: model)
         } label: {
-            Image(systemName: model.decision.hold ? "eye.fill" : "eye.slash")
-                .accessibilityLabel(model.decision.hold ? "Unrestor: keeping Mac awake" : "Unrestor: idle")
+            HStack(spacing: 4) {
+                Image(systemName: model.decision.hold ? "eye.fill" : "eye.slash")
+                if let left = model.countdown {
+                    Text(DurationParser.clock(left)).monospacedDigit()
+                }
+            }
+            .accessibilityLabel(model.decision.hold ? "Unrestor: keeping Mac awake" : "Unrestor: idle")
                 .task {
                     model.start()
                     model.refreshLaunchAtLogin()
@@ -88,9 +93,18 @@ private struct MenuContent: View {
     private var header: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(model.decision.hold ? "Awake" : "Resting")
-                    .font(.body.weight(.semibold))
-                    .accessibilityAddTraits(.isHeader)
+                HStack(spacing: 8) {
+                    Text(model.decision.hold ? "Awake" : "Resting")
+                        .font(.body.weight(.semibold))
+                        .accessibilityAddTraits(.isHeader)
+                    if let left = model.countdown {
+                        Text(DurationParser.clock(left))
+                            .font(.system(.body, design: .monospaced).weight(.medium))
+                            .foregroundStyle(.orange)
+                            .accessibilityLabel("\(DurationParser.format(left)) left")
+                        Text("left").font(.caption).foregroundStyle(.secondary)
+                    }
+                }
                 Text(model.decision.reason)
                     .font(.caption)
                     .foregroundStyle(.secondary)

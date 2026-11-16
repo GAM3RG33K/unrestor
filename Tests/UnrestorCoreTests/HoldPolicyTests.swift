@@ -48,3 +48,17 @@ private let plugged = PowerState(onBattery: false, batteryPercent: 100, thermal:
     let decision = HoldPolicy.decide(active: [request, other], settings: Settings(), power: plugged)
     #expect(decision.reason == "Awake for build and 1 more")
 }
+
+@Test func holdEndsWhenTheLastTimedRequestEnds() {
+    let soon = HoldRequest(id: "a", label: "a", expiresAt: Date(timeIntervalSince1970: 100))
+    let later = HoldRequest(id: "b", label: "b", expiresAt: Date(timeIntervalSince1970: 500))
+    #expect(HoldPolicy.holdEndsAt([soon, later]) == Date(timeIntervalSince1970: 500))
+    #expect(HoldPolicy.holdEndsAt([soon]) == Date(timeIntervalSince1970: 100))
+}
+
+@Test func anOpenEndedRequestMeansNoCountdown() {
+    let timed = HoldRequest(id: "a", label: "a", expiresAt: Date(timeIntervalSince1970: 100))
+    let open = HoldRequest(id: "b", label: "b")
+    #expect(HoldPolicy.holdEndsAt([timed, open]) == nil)
+    #expect(HoldPolicy.holdEndsAt([]) == nil)
+}
