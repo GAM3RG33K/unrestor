@@ -1,0 +1,53 @@
+# Publishes site/ to GitHub Pages. GitHub stats are fetched here, at deploy
+# time, and written into the page, so visitors' browsers make no requests to
+# GitHub or anyone else. A daily run keeps the numbers fresh.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ["site/**", ".github/workflows/pages.yml"]
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bake in GitHub stats
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          repo="${GITHUB_REPOSITORY}"
+          stars="$(gh api "repos/$repo" --jq .stargazers_count || true)"
+          forks="$(gh api "repos/$repo" --jq .forks_count || true)"
+          downloads="$(gh api "repos/$repo/releases" --paginate \
+            --jq '[.[].assets[].download_count] | add // 0' 2>/dev/null \
+            | awk '{ s += $1 } END { print s + 0 }' || true)"
+          # Leave a token in place when a value is missing; the page hides it.
+          [ -n "$stars" ] && sed -i "s/__STARS__/$stars/g" site/index.html
+          [ -n "$forks" ] && sed -i "s/__FORKS__/$forks/g" site/index.html
+          [ -n "$downloads" ] && sed -i "s/__DOWNLOADS__/$downloads/g" site/index.html
+          grep -o 'data-n="[^"]*"' site/index.html | sort | uniq -c
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4

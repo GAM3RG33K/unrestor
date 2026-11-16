@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unrestor — Close the lid. Your work keeps running.</title>
+<meta name="description" content="A free, open-source, minimal macOS keep-awake tool for long-running commands. Close the lid; your work keeps running, then your Mac sleeps.">
+<meta name="color-scheme" content="dark">
+<meta property="og:title" content="Unrestor — Close the lid. Your work keeps running.">
+<meta property="og:description" content="A free, open-source, minimal macOS keep-awake tool for long-running commands.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0d14'/%3E%3Cpath d='M4 16s4.5-8 12-8 12 8 12 8-4.5 8-12 8S4 16 4 16z' fill='none' stroke='%23ffb347' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='4.5' fill='%23ffb347'/%3E%3C/svg%3E">
+<style>
+:root{
+  --ink:#0a0c13; --ink-2:#10131d; --ink-3:#171b28; --line:#262b3d;
+  --paper:#efe8d8; --muted:#9a9fb3; --amber:#ffb347; --amber-deep:#e8831a; --dusk:#8fb0ff; --ok:#8ee0a4;
+  --serif:"New York","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --sans:ui-sans-serif,-apple-system,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--paper);font:17px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+.wrap{width:min(1120px,100% - 40px);margin-inline:auto}
+
+/* Night sky: a lamp glow, scattered stars, film grain. All CSS/SVG, no requests. */
+body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(900px 600px at 82% -8%,rgba(255,179,71,.20),transparent 60%),
+    radial-gradient(700px 500px at -10% 40%,rgba(143,176,255,.08),transparent 60%),
+    radial-gradient(1.2px 1.2px at 12% 18%,#fff8,transparent),radial-gradient(1px 1px at 28% 64%,#fff6,transparent),
+    radial-gradient(1.4px 1.4px at 46% 12%,#fffa,transparent),radial-gradient(1px 1px at 63% 38%,#fff6,transparent),
+    radial-gradient(1.2px 1.2px at 78% 72%,#fff7,transparent),radial-gradient(1px 1px at 90% 20%,#fff8,transparent),
+    radial-gradient(1px 1px at 8% 82%,#fff5,transparent),radial-gradient(1.3px 1.3px at 54% 88%,#fff6,transparent),
+    var(--ink)}
+body::after{content:"";position:fixed;inset:-50%;z-index:-1;pointer-events:none;opacity:.07;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* Nav */
+nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 0}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:600 20px var(--serif);letter-spacing:.2px}
+.brand svg{width:28px;height:28px}
+.links{display:flex;align-items:center;gap:26px;font-size:15px;color:var(--muted)}
+.links a{text-decoration:none;transition:color .2s}.links a:hover{color:var(--paper)}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--ink-2);padding:7px 14px;border-radius:999px;color:var(--paper)!important;font-size:14px}
+.pill:hover{border-color:var(--amber)}
+.stat[data-n^="__"]{display:none}
+.stat::after{content:attr(data-n)}
+.stat{font-variant-numeric:tabular-nums}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding:56px 0 96px;position:relative}
+.clock{position:absolute;z-index:-1;left:-12px;top:-6px;font:italic 700 clamp(180px,26vw,340px)/1 var(--serif);color:transparent;-webkit-text-stroke:1px rgba(255,179,71,.14);letter-spacing:-.04em;user-select:none}
+.eyebrow{font:500 13px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--amber);display:flex;gap:10px;align-items:center}
+.eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 14px var(--amber);animation:breathe 3.2s ease-in-out infinite}
+h1{font:600 clamp(44px,6.4vw,84px)/1.02 var(--serif);letter-spacing:-.025em;margin:18px 0 22px}
+h1 em{color:var(--amber);font-style:italic;font-weight:500}
+.lede{font-size:20px;color:#c9c6bb;max-width:34em}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin:34px 0 16px}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:14px 24px;border-radius:12px;font-weight:600;text-decoration:none;border:1px solid var(--line);transition:transform .15s,box-shadow .2s,border-color .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn.primary{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#2a1700;border-color:transparent;box-shadow:0 10px 40px -10px rgba(255,150,40,.6)}
+.btn.primary:hover{box-shadow:0 14px 50px -8px rgba(255,150,40,.8)}
+.btn.ghost{background:var(--ink-2)}.btn.ghost:hover{border-color:var(--amber)}
+.fine{font:13px var(--mono);color:var(--muted)}
+
+/* Terminal */
+.term{background:linear-gradient(180deg,var(--ink-3),var(--ink-2));border:1px solid var(--line);border-radius:16px;box-shadow:0 40px 80px -30px #000,0 0 0 1px rgba(255,255,255,.02) inset,0 0 90px -30px rgba(255,179,71,.35);transform:rotate(1.6deg);overflow:hidden}
+.term-bar{display:flex;align-items:center;gap:7px;padding:12px 14px;border-bottom:1px solid var(--line);font:12px var(--mono);color:var(--muted)}
+.term-bar b{width:11px;height:11px;border-radius:50%;background:#3a3f55}
+.term-bar span{margin-left:auto;margin-right:auto}
+.term pre{font:14px/1.75 var(--mono);padding:20px 22px 24px;white-space:pre-wrap;min-height:290px}
+.p{color:var(--amber)}.d{color:var(--muted)}.g{color:var(--ok)}
+.type{display:inline-block;overflow:hidden;white-space:nowrap;vertical-align:bottom;width:0;border-right:2px solid var(--amber);animation:type 2.2s steps(30) .6s forwards,caret .8s step-end 6}
+.rise{opacity:0;animation:rise .5s ease forwards}
+.l1{animation-delay:3s}.l2{animation-delay:3.6s}.l3{animation-delay:4.4s}.l4{animation-delay:5.4s}.l5{animation-delay:6.4s}
+.status{display:flex;align-items:center;gap:10px;margin-top:14px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,179,71,.07);font:13px var(--mono);color:var(--paper)}
+.status i{width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 12px var(--amber);animation:breathe 2.4s ease-in-out infinite}
+
+/* Sections */
+section{padding:84px 0;border-top:1px solid var(--line)}
+.kicker{font:500 13px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:14px}
+h2{font:600 clamp(32px,4.4vw,52px)/1.08 var(--serif);letter-spacing:-.02em;max-width:18em}
+.sub{color:var(--muted);font-size:19px;margin-top:14px;max-width:36em}
+
+/* Night timeline */
+.night{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:56px;position:relative}
+.night::before{content:"";position:absolute;left:0;right:0;top:31px;height:1px;background:linear-gradient(90deg,var(--amber),rgba(255,179,71,.15))}
+.step{padding-right:32px;position:relative}
+.step .t{font:700 28px var(--serif);color:var(--paper);background:var(--ink);display:inline-block;padding-right:14px;position:relative}
+.step .t small{font:500 13px var(--mono);color:var(--amber);margin-left:4px}
+.step h3{font:600 22px var(--serif);margin:26px 0 8px}
+.step p{color:var(--muted);font-size:16px}
+.step .dot{position:absolute;left:0;top:25px;width:13px;height:13px;border-radius:50%;background:var(--amber);box-shadow:0 0 18px var(--amber)}
+.step:last-child .dot{background:var(--dusk);box-shadow:0 0 18px var(--dusk)}
+.step .t{margin-left:24px}
+
+/* Commands */
+.cmds{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:48px}
+.card{background:linear-gradient(180deg,var(--ink-3),var(--ink-2));border:1px solid var(--line);border-radius:16px;padding:26px;transition:border-color .2s,transform .2s}
+.card:hover{border-color:rgba(255,179,71,.5);transform:translateY(-3px)}
+.card code{display:block;font:14.5px/1.6 var(--mono);background:#07090e;border:1px solid var(--line);padding:12px 14px;border-radius:10px;overflow-x:auto;color:var(--paper)}
+.card code .p{user-select:none}
+.card h3{font:600 20px var(--serif);margin:16px 0 6px}
+.card p{color:var(--muted);font-size:15.5px}
+
+/* Let go */
+.letgo{display:grid;grid-template-columns:1fr 1.25fr;gap:64px;align-items:start}
+.facts{display:grid;gap:0}
+.fact{display:grid;grid-template-columns:64px 1fr;gap:16px;padding:22px 0;border-bottom:1px solid var(--line)}
+.fact:first-child{padding-top:0}
+.fact b{font:italic 600 40px/1 var(--serif);color:var(--amber)}
+.fact h3{font:600 20px var(--serif);margin-bottom:4px}
+.fact p{color:var(--muted);font-size:16px}
+
+/* Compare */
+.table{margin-top:44px;border:1px solid var(--line);border-radius:16px;overflow:hidden;font-size:15.5px}
+.row{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr}
+.row>div{padding:15px 20px;border-bottom:1px solid var(--line)}
+.row:last-child>div{border-bottom:0}
+.row.head>div{font:500 13px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--ink-2)}
+.row .us{background:rgba(255,179,71,.07);color:var(--paper)}
+.row.head .us{color:var(--amber);background:rgba(255,179,71,.12)}
+.yes{color:var(--ok)}.no{color:#e58a8a}.meh{color:var(--muted)}
+
+/* Install */
+.install{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:44px}
+.install h3{font:600 20px var(--serif);margin-bottom:10px}
+.install p{color:var(--muted);font-size:15.5px;margin-top:12px}
+.note{margin-top:22px;padding:14px 18px;border:1px dashed rgba(255,179,71,.5);border-radius:12px;color:#e8d9bd;font-size:15px;background:rgba(255,179,71,.05)}
+
+/* Closing */
+.closing{text-align:center;padding:110px 0}
+.closing h2{margin-inline:auto}
+.closing .cta{justify-content:center}
+.closing .eye{width:84px;margin:0 auto 26px;filter:drop-shadow(0 0 26px rgba(255,179,71,.6))}
+.eye .lid{transform-origin:50% 50%;animation:blink 6s ease-in-out infinite}
+
+footer{border-top:1px solid var(--line);padding:46px 0 60px;color:var(--muted);font-size:15px}
+.fgrid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px}
+footer h4{font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--paper);margin-bottom:12px}
+footer a{display:block;text-decoration:none;padding:3px 0}footer a:hover{color:var(--amber)}
+.stats{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font:13px var(--mono)}
+.stats span.stat+span{margin-left:-12px}
+.legal{margin-top:36px;padding-top:22px;border-top:1px solid var(--line);font:13px/1.7 var(--mono);display:flex;gap:14px 28px;flex-wrap:wrap;justify-content:space-between}
+.privacy{color:var(--ok)}
+
+@keyframes type{to{width:31ch}}
+@keyframes caret{50%{border-color:transparent}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes breathe{50%{opacity:.35}}
+@keyframes blink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+.reveal{opacity:0;transform:translateY(16px);animation:rise .8s ease forwards}
+.reveal:nth-child(2){animation-delay:.12s}.reveal:nth-child(3){animation-delay:.24s}
+
+@media (max-width:900px){
+  .links a:not(.pill){display:none}
+  .hero,.letgo{grid-template-columns:1fr;gap:44px}
+  .term{transform:none}
+  .night{grid-template-columns:1fr;gap:34px}.night::before{display:none}
+  .step .dot{display:none}.step .t{margin-left:0}
+  .cmds,.install{grid-template-columns:1fr}
+  .row{grid-template-columns:1.2fr 1fr 1fr 1fr;font-size:14px}.row>div{padding:12px 10px}
+  .fgrid{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .type{width:31ch;border:0}.rise,.reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav aria-label="Main">
+    <a class="brand" href="#top" id="top">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M2 16s5-9 14-9 14 9 14 9-5 9-14 9S2 16 2 16z" fill="none" stroke="#ffb347" stroke-width="2"/><circle cx="16" cy="16" r="5" fill="#ffb347"/></svg>
+      Unrestor
+    </a>
+    <div class="links">
+      <a href="#night">How it works</a>
+      <a href="#commands">Commands</a>
+      <a href="#safety">Safety</a>
+      <a href="#install">Install</a>
+      <a class="pill" href="https://github.com/GAM3RG33K/unrestor">★ <span class="stat" data-n="__STARS__"></span> GitHub</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="clock" aria-hidden="true">3:07</div>
+    <div>
+      <p class="eyebrow"><i></i> Free · Open source · macOS 14+</p>
+      <h1>Close the lid. Your work <em>keeps running.</em></h1>
+      <p class="lede">Unrestor is a minimal macOS keep-awake tool for long-running commands. Start a build, a test run, or an AI agent, shut the MacBook, and walk away. When the work ends, your Mac goes to sleep.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/GAM3RG33K/unrestor/releases/latest">Download for Mac</a>
+        <a class="btn ghost" href="https://github.com/GAM3RG33K/unrestor">★ Star on GitHub</a>
+      </div>
+      <p class="fine">Free · Apache-2.0 · works on battery · no tracking</p>
+    </div>
+
+    <div class="term" role="img" aria-label="Terminal: unrestor run npm run build keeps the Mac awake, lid closed, until the build finishes, then releases.">
+      <div class="term-bar"><b></b><b></b><b></b><span>~/project — zsh</span></div>
+<pre><span class="p">$</span> <span class="type">unrestor run -- npm run build</span>
+<span class="rise l1 d">▸ hold requested · lid-closed · battery 83%</span>
+<span class="rise l2">building… 1,204 modules</span>
+<span class="rise l3 d">  (you close the lid. it keeps going.)</span>
+<span class="rise l4 g">✓ build finished in 41m</span>
+<span class="rise l5 d">▸ hold released · Mac can sleep</span>
+<div class="status rise l2"><i></i> Awake · lid closed · releases when the build ends</div></pre>
+    </div>
+  </header>
+
+  <section id="night">
+    <p class="kicker">How it works</p>
+    <h2>One long night. Three moments.</h2>
+    <p class="sub">Unrestor holds your Mac awake only while something is asking for it, then lets go on its own.</p>
+    <div class="night">
+      <div class="step reveal"><span class="dot"></span><div class="t">11:42<small>PM</small></div><h3>Start it</h3><p>Run your command through <code>unrestor run</code>, or flip the switch in the menu bar. That is a hold request, nothing more.</p></div>
+      <div class="step reveal"><span class="dot"></span><div class="t">12:00<small>AM</small></div><h3>Close the lid</h3><p>A small background service stops the Mac from sleeping, with or without a charger. The process keeps running.</p></div>
+      <div class="step reveal"><span class="dot"></span><div class="t">3:07<small>AM</small></div><h3>It lets go</h3><p>The command exits, the hold is released, and your Mac sleeps. A low battery or a hot Mac ends it sooner.</p></div>
+    </div>
+  </section>
+
+  <section id="commands">
+    <p class="kicker">Commands</p>
+    <h2>Any tool you can start from a terminal.</h2>
+    <div class="cmds">
+      <div class="card"><code><span class="p">$</span> unrestor run -- npm test</code><h3>Run</h3><p>Awake exactly as long as the command runs. Its exit code passes through.</p></div>
+      <div class="card"><code><span class="p">$</span> unrestor run --for 2h -- claude</code><h3>Cap it</h3><p>Add a time limit so a stuck job cannot keep the Mac up all night.</p></div>
+      <div class="card"><code><span class="p">$</span> unrestor watch 4821</code><h3>Watch a process</h3><p>Already running something? Hold the Mac awake until that process ends.</p></div>
+      <div class="card"><code><span class="p">$</span> unrestor on --for 90m</code><h3>Manual hold</h3><p>A plain keep-awake with a timer. Same switch lives in the menu bar.</p></div>
+    </div>
+  </section>
+
+  <section id="safety">
+    <div class="letgo">
+      <div>
+        <p class="kicker">Safety</p>
+        <h2>Built to let go.</h2>
+        <p class="sub">Keeping a laptop awake with the lid shut is a bad idea if it never stops. Unrestor makes stopping the default.</p>
+      </div>
+      <div class="facts">
+        <div class="fact"><b>01</b><div><h3>Released on every exit</h3><p>A hold belongs to the process, timer, or switch that asked. Quit the app, crash, or lose the service and it is released.</p></div></div>
+        <div class="fact"><b>02</b><div><h3>Crash-safe restore</h3><p>Your original sleep setting is recorded first and restored at the next launch, even after a reboot.</p></div></div>
+        <div class="fact"><b>03</b><div><h3>Limits always win</h3><p>A battery floor you choose, a heat limit, and a power-only mode override any request.</p></div></div>
+        <div class="fact"><b>04</b><div><h3>A tiny privileged surface</h3><p>The root service offers named, reversible switches only. It never runs your commands, and it trusts only the signed app.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="compare">
+    <p class="kicker">Compared</p>
+    <h2>Why not just <span style="white-space:nowrap">pmset</span>?</h2>
+    <div class="table" role="table" aria-label="Comparison">
+      <div class="row head" role="row"><div>&nbsp;</div><div>pmset by hand</div><div>caffeinate</div><div class="us">Unrestor</div></div>
+      <div class="row" role="row"><div>Lid closed, no charger</div><div class="yes">Yes</div><div class="no">No</div><div class="us yes">Yes</div></div>
+      <div class="row" role="row"><div>Releases when work ends</div><div class="no">You remember</div><div class="yes">Yes</div><div class="us yes">Yes</div></div>
+      <div class="row" role="row"><div>Survives a crash or reboot</div><div class="no">Stays on</div><div class="meh">n/a</div><div class="us yes">Restored</div></div>
+      <div class="row" role="row"><div>Battery and heat limits</div><div class="no">None</div><div class="no">None</div><div class="us yes">Built in</div></div>
+    </div>
+  </section>
+
+  <section id="install">
+    <p class="kicker">Install</p>
+    <h2>Two ways in.</h2>
+    <div class="install">
+      <div class="card"><h3>Homebrew</h3><code><span class="p">$</span> brew install --cask GAM3RG33K/tap/unrestor</code><p>Also puts the <code style="display:inline;padding:1px 6px">unrestor</code> command on your PATH.</p></div>
+      <div class="card"><h3>Direct download</h3><code><span class="p">→</span> Unrestor.dmg → Applications</code><p>Open the app, choose “Set Up Background Service…”, then allow it once in System Settings → Login Items.</p></div>
+    </div>
+    <p class="note"><strong>Early release.</strong> Unrestor is new. A signed build is on the way; until then you can <a href="https://github.com/GAM3RG33K/unrestor">build it from source</a>.</p>
+  </section>
+
+  <div class="closing">
+    <svg class="eye" viewBox="0 0 64 64" aria-hidden="true"><path d="M4 32s11-18 28-18 28 18 28 18-11 18-28 18S4 32 4 32z" fill="none" stroke="#ffb347" stroke-width="3"/><g class="lid"><circle cx="32" cy="32" r="10" fill="#ffb347"/></g></svg>
+    <h2>Go to sleep. Let your Mac stay up.</h2>
+    <p class="sub" style="margin-inline:auto">Free, open source, and gone from your way when the work is done.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/GAM3RG33K/unrestor/releases/latest">Download for Mac</a>
+      <a class="btn ghost" href="https://github.com/GAM3RG33K/unrestor">★ Star on GitHub</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <a class="brand" href="#top"><svg viewBox="0 0 32 32" aria-hidden="true" style="width:24px;height:24px"><path d="M2 16s5-9 14-9 14 9 14 9-5 9-14 9S2 16 2 16z" fill="none" stroke="#ffb347" stroke-width="2"/><circle cx="16" cy="16" r="5" fill="#ffb347"/></svg>Unrestor</a>
+        <p style="margin-top:10px;max-width:22em">Close the lid. Your work keeps running.</p>
+        <div class="stats">
+          <span>★ <span class="stat" data-n="__STARS__"></span> stars</span>
+          <span>⑂ <span class="stat" data-n="__FORKS__"></span> forks</span>
+          <span>↓ <span class="stat" data-n="__DOWNLOADS__"></span> downloads</span>
+        </div>
+      </div>
+      <div><h4>Product</h4><a href="#night">How it works</a><a href="#commands">Commands</a><a href="#safety">Safety</a><a href="#install">Install</a></div>
+      <div><h4>Project</h4><a href="https://github.com/GAM3RG33K/unrestor">GitHub</a><a href="https://github.com/GAM3RG33K/unrestor/releases">Releases</a><a href="https://github.com/GAM3RG33K/unrestor/issues">Issues</a><a href="https://github.com/GAM3RG33K/unrestor/blob/main/CONTRIBUTING.md">Contributing</a></div>
+      <div><h4>Legal</h4><a href="https://github.com/GAM3RG33K/unrestor/blob/main/LICENSE">Apache-2.0</a><a href="https://github.com/GAM3RG33K/unrestor/blob/main/SECURITY.md">Security</a><a href="https://github.com/GAM3RG33K/unrestor/blob/main/NOTICE">Credits</a></div>
+    </div>
+    <div class="legal">
+      <span class="privacy">No analytics. No cookies. No third-party requests.</span>
+      <span>Derived from <a href="https://github.com/ruban-24/letitbrew" style="display:inline">Let It Brew</a> (Apache-2.0).</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

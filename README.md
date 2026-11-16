@@ -34,7 +34,7 @@ Unrestor is a safe wrapper around that switch:
 
 ## Install
 
-Download the latest signed and notarized DMG from the
+Download the latest DMG from the
 [releases page](https://github.com/GAM3RG33K/unrestor/releases/latest), drag
 **Unrestor** to `/Applications`, open it, and choose **Set Up Background
 Service…**. macOS asks you to allow it once in **System Settings → General →
