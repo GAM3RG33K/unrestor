@@ -10,7 +10,7 @@ struct UnrestorApp: App {
             MenuContent(model: model)
         } label: {
             HStack(spacing: 4) {
-                Image(systemName: model.decision.hold ? "eye.fill" : "eye.slash")
+                MenuBarGlyph.image(awake: model.decision.hold)
                 if let left = model.countdown {
                     Text(DurationParser.clock(left)).monospacedDigit()
                 }

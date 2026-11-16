@@ -9,7 +9,9 @@
 <meta property="og:title" content="Unrestor — Close the lid. Your work keeps running.">
 <meta property="og:description" content="A free, open-source, minimal macOS keep-awake tool for long-running commands.">
 <meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0d14'/%3E%3Cpath d='M4 16s4.5-8 12-8 12 8 12 8-4.5 8-12 8S4 16 4 16z' fill='none' stroke='%23ffb347' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='4.5' fill='%23ffb347'/%3E%3C/svg%3E">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
 :root{
   --ink:#0a0c13; --ink-2:#10131d; --ink-3:#171b28; --line:#262b3d;
@@ -40,7 +42,7 @@ body::after{content:"";position:fixed;inset:-50%;z-index:-1;pointer-events:none;
 /* Nav */
 nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 0}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:600 20px var(--serif);letter-spacing:.2px}
-.brand svg{width:28px;height:28px}
+.brand svg{width:30px;height:30px}
 .links{display:flex;align-items:center;gap:26px;font-size:15px;color:var(--muted)}
 .links a{text-decoration:none;transition:color .2s}.links a:hover{color:var(--paper)}
 .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--ink-2);padding:7px 14px;border-radius:999px;color:var(--paper)!important;font-size:14px}
@@ -135,7 +137,7 @@ h2{font:600 clamp(32px,4.4vw,52px)/1.08 var(--serif);letter-spacing:-.02em;max-w
 .closing{text-align:center;padding:110px 0}
 .closing h2{margin-inline:auto}
 .closing .cta{justify-content:center}
-.closing .eye{width:84px;margin:0 auto 26px;filter:drop-shadow(0 0 26px rgba(255,179,71,.6))}
+.closing .eye{width:96px;margin:0 auto 26px;filter:drop-shadow(0 0 26px rgba(255,179,71,.6))}
 .eye .lid{transform-origin:50% 50%;animation:blink 6s ease-in-out infinite}
 
 footer{border-top:1px solid var(--line);padding:46px 0 60px;color:var(--muted);font-size:15px}
@@ -175,7 +177,7 @@ footer a{display:block;text-decoration:none;padding:3px 0}footer a:hover{color:v
 <div class="wrap">
   <nav aria-label="Main">
     <a class="brand" href="#top" id="top">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M2 16s5-9 14-9 14 9 14 9-5 9-14 9S2 16 2 16z" fill="none" stroke="#ffb347" stroke-width="2"/><circle cx="16" cy="16" r="5" fill="#ffb347"/></svg>
+      <svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="gn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc66b"/><stop offset="1" stop-color="#e8831a"/></linearGradient></defs><path d="M4 32C12 19 22 12 32 12C42 12 52 19 60 32C52 45 42 52 32 52C22 52 12 45 4 32Z" fill="none" stroke="url(#gn)" stroke-width="5.5" stroke-linejoin="round"/><path d="M44.46 36.28A13.5 13.5 0 1 1 32.53 19.04A10.5 10.5 0 1 0 44.46 36.28Z" fill="url(#gn)"/></svg>
       Unrestor
     </a>
     <div class="links">
@@ -281,7 +283,7 @@ footer a{display:block;text-decoration:none;padding:3px 0}footer a:hover{color:v
   </section>
 
   <div class="closing">
-    <svg class="eye" viewBox="0 0 64 64" aria-hidden="true"><path d="M4 32s11-18 28-18 28 18 28 18-11 18-28 18S4 32 4 32z" fill="none" stroke="#ffb347" stroke-width="3"/><g class="lid"><circle cx="32" cy="32" r="10" fill="#ffb347"/></g></svg>
+    <svg class="eye" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="gc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc66b"/><stop offset="1" stop-color="#e8831a"/></linearGradient></defs><path d="M4 32C12 19 22 12 32 12C42 12 52 19 60 32C52 45 42 52 32 52C22 52 12 45 4 32Z" fill="none" stroke="url(#gc)" stroke-width="3.2" stroke-linejoin="round"/><g class="lid"><path d="M44.46 36.28A13.5 13.5 0 1 1 32.53 19.04A10.5 10.5 0 1 0 44.46 36.28Z" fill="url(#gc)"/></g></svg>
     <h2>Go to sleep. Let your Mac stay up.</h2>
     <p class="sub" style="margin-inline:auto">Free, open source, and gone from your way when the work is done.</p>
     <div class="cta">
@@ -295,7 +297,7 @@ footer a{display:block;text-decoration:none;padding:3px 0}footer a:hover{color:v
   <div class="wrap">
     <div class="fgrid">
       <div>
-        <a class="brand" href="#top"><svg viewBox="0 0 32 32" aria-hidden="true" style="width:24px;height:24px"><path d="M2 16s5-9 14-9 14 9 14 9-5 9-14 9S2 16 2 16z" fill="none" stroke="#ffb347" stroke-width="2"/><circle cx="16" cy="16" r="5" fill="#ffb347"/></svg>Unrestor</a>
+        <a class="brand" href="#top"><svg viewBox="0 0 64 64" aria-hidden="true" style="width:24px;height:24px"><defs><linearGradient id="gf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc66b"/><stop offset="1" stop-color="#e8831a"/></linearGradient></defs><path d="M4 32C12 19 22 12 32 12C42 12 52 19 60 32C52 45 42 52 32 52C22 52 12 45 4 32Z" fill="none" stroke="url(#gf)" stroke-width="5.5" stroke-linejoin="round"/><path d="M44.46 36.28A13.5 13.5 0 1 1 32.53 19.04A10.5 10.5 0 1 0 44.46 36.28Z" fill="url(#gf)"/></svg>Unrestor</a>
         <p style="margin-top:10px;max-width:22em">Close the lid. Your work keeps running.</p>
         <div class="stats">
           <span>★ <span class="stat" data-n="__STARS__"></span> stars</span>

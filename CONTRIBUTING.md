@@ -26,6 +26,13 @@ socket as a normal user. It does not cover `sudo unrestor install`, the launchd
 job, or the menu-bar UI; see the manual checks in
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Icons
+
+Every icon comes from one definition in `scripts/build-icons.py` (an open eye
+with a crescent-moon pupil). After changing it, run
+`python3 scripts/build-icons.py` (needs `brew install librsvg`) and commit the
+regenerated files in `assets/icon` and `site`. Building the app does not need it.
+
 ## Pull requests
 
 Describe what changed and why. Keep them small. Do not include credentials.

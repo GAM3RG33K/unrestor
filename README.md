@@ -1,6 +1,19 @@
+<div align="center">
+
+<img src="assets/icon/unrestor-icon.svg" width="128" height="128" alt="Unrestor app icon: an open eye with a crescent moon for a pupil">
+
 # Unrestor
 
 **Close the lid. Your work keeps running.**
+
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-black?logo=apple)](https://www.apple.com/macos/)
+[![CI](https://github.com/GAM3RG33K/unrestor/actions/workflows/ci.yml/badge.svg)](https://github.com/GAM3RG33K/unrestor/actions/workflows/ci.yml)
+
+[Download](https://github.com/GAM3RG33K/unrestor/releases/latest) &middot; [Website](https://gam3rg33k.github.io/unrestor/)
+
+</div>
+
 
 A free, open-source, minimal macOS keep-awake tool for long-running commands.
 Start a build, a test run, or an AI agent through `unrestor`, shut the MacBook,

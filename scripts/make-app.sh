@@ -22,6 +22,9 @@ cp "$BIN/UnrestorApp" "$APP/Contents/MacOS/Unrestor"
 cp "$BIN/unrestor" "$APP/Contents/Helpers/unrestor"
 cp "$BIN/unrestor-daemon" "$APP/Contents/Helpers/unrestor-daemon"
 cp LICENSE NOTICE "$APP/Contents/Resources/Legal/"
+# Icons: the Finder icon, and the SVGs the menu-bar glyph is drawn from.
+cp assets/icon/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+cp assets/icon/unrestor-glyph.svg assets/icon/unrestor-glyph-resting.svg "$APP/Contents/Resources/"
 
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -32,6 +35,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 	<key>CFBundleDisplayName</key><string>Unrestor</string>
 	<key>CFBundleName</key><string>Unrestor</string>
 	<key>CFBundleExecutable</key><string>Unrestor</string>
+	<key>CFBundleIconFile</key><string>AppIcon</string>
 	<key>CFBundleIdentifier</key><string>app.unrestor</string>
 	<key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
 	<key>CFBundlePackageType</key><string>APPL</string>
@@ -55,9 +59,16 @@ echo "==> Building DMG"
 STAGE="$(mktemp -d)"
 cp -R "$APP" "$STAGE/Unrestor.app"
 ln -s /Applications "$STAGE/Applications"
-/usr/bin/hdiutil create -volname "Unrestor" -srcfolder "$STAGE" -ov -format UDZO \
-    "$OUT/Unrestor-$VERSION.dmg" >/dev/null
-rm -rf "$STAGE"
+# Give the mounted disk the app icon: the icon file plus Finder's "custom
+# icon" flag on the volume, which can only be set on a mounted read-write image.
+cp assets/icon/AppIcon.icns "$STAGE/.VolumeIcon.icns"
+RW="$(mktemp -d)/rw.dmg"
+/usr/bin/hdiutil create -volname "Unrestor" -srcfolder "$STAGE" -ov -format UDRW "$RW" >/dev/null
+MOUNT="$(/usr/bin/hdiutil attach "$RW" -nobrowse -noverify | /usr/bin/awk -F'\t' '/\/Volumes\// { print $NF }' | tail -n 1)"
+/usr/bin/SetFile -a C "$MOUNT"
+/usr/bin/hdiutil detach "$MOUNT" -quiet
+/usr/bin/hdiutil convert "$RW" -format UDZO -o "$OUT/Unrestor-$VERSION.dmg" >/dev/null
+rm -rf "$STAGE" "$(dirname "$RW")"
 
 ( cd "$OUT" && /usr/bin/shasum -a 256 "Unrestor-$VERSION.dmg" | tee "Unrestor-$VERSION.dmg.sha256" )
 echo "Built $APP and $OUT/Unrestor-$VERSION.dmg"
