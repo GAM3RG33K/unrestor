@@ -8,6 +8,14 @@ public struct Settings: Codable, Equatable, Sendable {
     public var lowPowerWhileHeld = false
 
     public init() {}
+
+    /// What the daemon will actually honor: it never accepts a floor below its
+    /// hard minimum, so a client cannot talk it out of protecting the battery.
+    public func clamped() -> Settings {
+        var copy = self
+        copy.batteryFloor = min(100, max(DaemonProtocol.hardMinimumBatteryFloor, batteryFloor))
+        return copy
+    }
 }
 
 public struct HoldDecision: Equatable, Sendable {
@@ -32,6 +40,13 @@ public enum HoldPolicy {
         guard !requests.isEmpty else {
             return HoldDecision(hold: false, reason: "Nothing is asking to stay awake")
         }
+        if let release = safetyRelease(settings: settings, power: power) { return release }
+        return HoldDecision(hold: true, reason: describe(requests))
+    }
+
+    /// The limits that end a hold no matter who asked for it. The daemon applies
+    /// this to every heartbeat, so they hold even against a misbehaving client.
+    public static func safetyRelease(settings: Settings, power: PowerState) -> HoldDecision? {
         guard power.trusted else {
             return HoldDecision(hold: false, reason: "Battery state unreadable, so the Mac can sleep")
         }
@@ -50,7 +65,7 @@ public enum HoldPolicy {
                 reason: "Battery below \(settings.batteryFloor)%, so the Mac can sleep"
             )
         }
-        return HoldDecision(hold: true, reason: describe(requests))
+        return nil
     }
 
     static func describe(_ requests: [HoldRequest]) -> String {

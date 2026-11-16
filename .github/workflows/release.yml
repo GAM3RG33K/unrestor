@@ -1,6 +1,5 @@
-# Creates a draft GitHub release when you push a tag like v0.1.0. The signed,
-# notarized DMG is built on your Mac with scripts/build-release.sh and attached
-# by hand: signing certificates are not stored in CI.
+# Push a tag like v0.1.0 to build the DMG on GitHub's Mac runner and publish a
+# release. No Apple certificates are involved: the app is ad-hoc signed.
 name: Release
 
 on:
@@ -11,14 +10,28 @@ permissions:
   contents: write
 
 jobs:
-  draft:
-    runs-on: ubuntu-latest
+  release:
+    runs-on: macos-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: Create draft release
+      - name: Check the tag matches the version in the source
+        run: |
+          src="$(sed -n 's/.*current = "\(.*\)".*/\1/p' Sources/UnrestorCore/Protocol.swift)"
+          [ "v$src" = "${GITHUB_REF_NAME}" ] || { echo "tag ${GITHUB_REF_NAME} != source v$src" >&2; exit 1; }
+      - name: Test
+        run: swift test
+      - name: Build the app and DMG
+        run: scripts/make-app.sh
+      - name: Publish the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          version="${GITHUB_REF_NAME#v}"
+          sha="$(cut -d' ' -f1 "dist/Unrestor-$version.dmg.sha256")"
           gh release create "${GITHUB_REF_NAME}" \
-            --draft --title "Unrestor ${GITHUB_REF_NAME#v}" \
-            --notes "Attach Unrestor-${GITHUB_REF_NAME#v}.dmg and its SHA-256, then publish."
+            "dist/Unrestor-$version.dmg" "dist/Unrestor-$version.dmg.sha256" \
+            --title "Unrestor $version" \
+            --notes "SHA-256: \`$sha\`
+
+          Not notarized. See the install steps in the README."

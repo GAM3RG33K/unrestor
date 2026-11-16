@@ -100,7 +100,7 @@ h2{font:600 clamp(32px,4.4vw,52px)/1.08 var(--serif);letter-spacing:-.02em;max-w
 .cmds{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:48px}
 .card{background:linear-gradient(180deg,var(--ink-3),var(--ink-2));border:1px solid var(--line);border-radius:16px;padding:26px;transition:border-color .2s,transform .2s}
 .card:hover{border-color:rgba(255,179,71,.5);transform:translateY(-3px)}
-.card code{display:block;font:14.5px/1.6 var(--mono);background:#07090e;border:1px solid var(--line);padding:12px 14px;border-radius:10px;overflow-x:auto;color:var(--paper)}
+.card code{display:block;font:14.5px/1.6 var(--mono);background:#07090e;border:1px solid var(--line);padding:12px 14px;border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--paper)}
 .card code .p{user-select:none}
 .card h3{font:600 20px var(--serif);margin:16px 0 6px}
 .card p{color:var(--muted);font-size:15.5px}
@@ -125,7 +125,8 @@ h2{font:600 clamp(32px,4.4vw,52px)/1.08 var(--serif);letter-spacing:-.02em;max-w
 .yes{color:var(--ok)}.no{color:#e58a8a}.meh{color:var(--muted)}
 
 /* Install */
-.install{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:44px}
+.install{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
+.step2{margin-top:18px;border-color:rgba(255,179,71,.4)}
 .install h3{font:600 20px var(--serif);margin-bottom:10px}
 .install p{color:var(--muted);font-size:15.5px;margin-top:12px}
 .note{margin-top:22px;padding:14px 18px;border:1px dashed rgba(255,179,71,.5);border-radius:12px;color:#e8d9bd;font-size:15px;background:rgba(255,179,71,.05)}
@@ -196,7 +197,7 @@ footer a{display:block;text-decoration:none;padding:3px 0}footer a:hover{color:v
         <a class="btn primary" href="https://github.com/GAM3RG33K/unrestor/releases/latest">Download for Mac</a>
         <a class="btn ghost" href="https://github.com/GAM3RG33K/unrestor">★ Star on GitHub</a>
       </div>
-      <p class="fine">Free · Apache-2.0 · works on battery · no tracking</p>
+      <p class="fine">Free · Apache-2.0 · works on battery · no tracking · not notarized, see Install</p>
     </div>
 
     <div class="term" role="img" aria-label="Terminal: unrestor run npm run build keeps the Mac awake, lid closed, until the build finishes, then releases.">
@@ -216,7 +217,7 @@ footer a{display:block;text-decoration:none;padding:3px 0}footer a:hover{color:v
     <h2>One long night. Three moments.</h2>
     <p class="sub">Unrestor holds your Mac awake only while something is asking for it, then lets go on its own.</p>
     <div class="night">
-      <div class="step reveal"><span class="dot"></span><div class="t">11:42<small>PM</small></div><h3>Start it</h3><p>Run your command through <code>unrestor run</code>, or flip the switch in the menu bar. That is a hold request, nothing more.</p></div>
+      <div class="step reveal"><span class="dot"></span><div class="t">11:42<small>PM</small></div><h3>Start it</h3><p>Run your command through <code>unrestor run</code>, or flip the switch in the menu bar. That is a request to stay awake, nothing more.</p></div>
       <div class="step reveal"><span class="dot"></span><div class="t">12:00<small>AM</small></div><h3>Close the lid</h3><p>A small background service stops the Mac from sleeping, with or without a charger. The process keeps running.</p></div>
       <div class="step reveal"><span class="dot"></span><div class="t">3:07<small>AM</small></div><h3>It lets go</h3><p>The command exits, the hold is released, and your Mac sleeps. A low battery or a hot Mac ends it sooner.</p></div>
     </div>
@@ -225,11 +226,12 @@ footer a{display:block;text-decoration:none;padding:3px 0}footer a:hover{color:v
   <section id="commands">
     <p class="kicker">Commands</p>
     <h2>Any tool you can start from a terminal.</h2>
+    <p class="sub">Everything works without the menu-bar app. Each command stays in the foreground until it is done.</p>
     <div class="cmds">
       <div class="card"><code><span class="p">$</span> unrestor run -- npm test</code><h3>Run</h3><p>Awake exactly as long as the command runs. Its exit code passes through.</p></div>
       <div class="card"><code><span class="p">$</span> unrestor run --for 2h -- claude</code><h3>Cap it</h3><p>Add a time limit so a stuck job cannot keep the Mac up all night.</p></div>
       <div class="card"><code><span class="p">$</span> unrestor watch 4821</code><h3>Watch a process</h3><p>Already running something? Hold the Mac awake until that process ends.</p></div>
-      <div class="card"><code><span class="p">$</span> unrestor on --for 90m</code><h3>Manual hold</h3><p>A plain keep-awake with a timer. Same switch lives in the menu bar.</p></div>
+      <div class="card"><code><span class="p">$</span> unrestor hold --for 90m</code><h3>Plain keep-awake</h3><p>No command needed: stay awake until the timer ends or you press Ctrl-C. The menu bar has the same switch.</p></div>
     </div>
   </section>
 
@@ -238,13 +240,13 @@ footer a{display:block;text-decoration:none;padding:3px 0}footer a:hover{color:v
       <div>
         <p class="kicker">Safety</p>
         <h2>Built to let go.</h2>
-        <p class="sub">Keeping a laptop awake with the lid shut is a bad idea if it never stops. Unrestor makes stopping the default.</p>
+        <p class="sub">Keeping a laptop awake with the lid shut is a bad idea if it never stops. Unrestor makes stopping the default. <a href="https://github.com/GAM3RG33K/unrestor/blob/main/SECURITY.md" style="color:var(--amber)">Read exactly what the service can do.</a></p>
       </div>
       <div class="facts">
         <div class="fact"><b>01</b><div><h3>Released on every exit</h3><p>A hold belongs to the process, timer, or switch that asked. Quit the app, crash, or lose the service and it is released.</p></div></div>
         <div class="fact"><b>02</b><div><h3>Crash-safe restore</h3><p>Your original sleep setting is recorded first and restored at the next launch, even after a reboot.</p></div></div>
         <div class="fact"><b>03</b><div><h3>Limits always win</h3><p>A battery floor you choose, a heat limit, and a power-only mode override any request.</p></div></div>
-        <div class="fact"><b>04</b><div><h3>A tiny privileged surface</h3><p>The root service offers named, reversible switches only. It never runs your commands, and it trusts only the signed app.</p></div></div>
+        <div class="fact"><b>04</b><div><h3>A tiny privileged surface</h3><p>The root service runs one fixed system command. It never runs yours, only your own user can talk to it, and it enforces the limits itself, so no program can switch them off.</p></div></div>
       </div>
     </div>
   </section>
@@ -263,12 +265,19 @@ footer a{display:block;text-decoration:none;padding:3px 0}footer a:hover{color:v
 
   <section id="install">
     <p class="kicker">Install</p>
-    <h2>Two ways in.</h2>
+    <h2>Three ways in. One extra step.</h2>
+    <p class="sub">Unrestor is free and not notarized by Apple, which would need a paid account. It is built in the open on GitHub, so you can read the code and the build. macOS asks you to approve it once.</p>
     <div class="install">
-      <div class="card"><h3>Homebrew</h3><code><span class="p">$</span> brew install --cask GAM3RG33K/tap/unrestor</code><p>Also puts the <code style="display:inline;padding:1px 6px">unrestor</code> command on your PATH.</p></div>
-      <div class="card"><h3>Direct download</h3><code><span class="p">→</span> Unrestor.dmg → Applications</code><p>Open the app, choose “Set Up Background Service…”, then allow it once in System Settings → Login Items.</p></div>
+      <div class="card"><h3>Homebrew</h3><code><span class="p">$</span> brew install --cask GAM3RG33K/tap/unrestor</code><p>Skips the macOS warning and puts <code style="display:inline;padding:1px 6px">unrestor</code> on your PATH.</p></div>
+      <div class="card"><h3>Download the DMG</h3><code><span class="p">→</span> Unrestor.dmg → Applications</code><p>On first open choose <strong>System Settings → Privacy &amp; Security → Open Anyway</strong>.</p></div>
+      <div class="card"><h3>Build from source</h3><code><span class="p">$</span> scripts/make-app.sh</code><p>Needs Xcode's command-line tools. Builds the same app and DMG on your Mac.</p></div>
     </div>
-    <p class="note"><strong>Early release.</strong> Unrestor is new. A signed build is on the way; until then you can <a href="https://github.com/GAM3RG33K/unrestor">build it from source</a>.</p>
+    <div class="card step2">
+      <h3>Then, once: install the background service</h3>
+      <code><span class="p">$</span> sudo unrestor install</code>
+      <p>Or open the app and choose <strong>Install Background Service…</strong>; macOS asks for your password. This is what lets the Mac stay awake with the lid closed. Remove it any time with <code style="display:inline;padding:1px 6px">sudo unrestor uninstall</code>.</p>
+    </div>
+    <p class="note"><strong>Stuck?</strong> Run <code style="background:none;border:0;padding:0">unrestor help</code> for the full guide, or <code style="background:none;border:0;padding:0">unrestor status</code> to see why the Mac is or is not staying awake. More in the <a href="https://github.com/GAM3RG33K/unrestor#troubleshooting" style="color:var(--amber)">troubleshooting guide</a>.</p>
   </section>
 
   <div class="closing">

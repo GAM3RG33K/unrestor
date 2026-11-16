@@ -5,24 +5,27 @@ easiest to accept.
 
 ## Ground rules
 
-- The privileged surface stays tiny: named, reversible switches, never an
-  arbitrary command runner.
+- The root daemon's surface stays tiny: fixed `pmset` calls, never an
+  arbitrary command runner, and never a setting a client can use to weaken the
+  safety limits.
 - A hold must be released on every exit path. If you add a way to hold, add a
   test that proves it releases.
 - Logic goes in `UnrestorCore` or `UnrestorDaemonCore` as pure, testable code.
-  `UnrestorApp`, `UnrestorDaemon`, and `unrestor` stay thin.
+  `UnrestorApp`, `unrestor-daemon`, and `unrestor` stay thin.
 
 ## Build and test
 
 ```sh
 swift build
 swift test
+scripts/make-app.sh      # builds dist/Unrestor.app and a DMG
 ```
 
-`swift build` type-checks the app and daemon too. Running them for real needs an
-Apple-signed build; see [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md).
+`swift test` covers the policy, the protocol, and the daemon over a real Unix
+socket as a normal user. It does not cover `sudo unrestor install`, the launchd
+job, or the menu-bar UI; see the manual checks in
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Pull requests
 
-Describe what changed and why. Keep them small. Do not include credentials or
-signing material anywhere.
+Describe what changed and why. Keep them small. Do not include credentials.

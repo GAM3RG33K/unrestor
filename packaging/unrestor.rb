@@ -1,8 +1,8 @@
 # Homebrew cask for Unrestor. Copy this file to Casks/unrestor.rb in your tap
 # repository (github.com/GAM3RG33K/homebrew-tap), then:
 #   brew install --cask GAM3RG33K/tap/unrestor
-# Update `version` and `sha256` for every release (scripts/build-release.sh
-# prints both).
+# Update `version` and `sha256` for every release (the release workflow writes
+# the SHA-256 into the release notes and attaches Unrestor-VERSION.dmg.sha256).
 cask "unrestor" do
   version "0.1.0"
   sha256 "REPLACE_WITH_DMG_SHA256"
@@ -17,10 +17,32 @@ cask "unrestor" do
   app "Unrestor.app"
   binary "#{appdir}/Unrestor.app/Contents/Helpers/unrestor"
 
+  # The app is ad-hoc signed, not notarized (no paid Apple account). Clearing
+  # the download quarantine mark lets it open without the Gatekeeper warning.
+  postflight do
+    system_command "/usr/bin/xattr",
+                   args: ["-dr", "com.apple.quarantine", "#{appdir}/Unrestor.app"]
+  end
+
+  # Removes the root background service before the app goes away.
+  uninstall_preflight do
+    system_command "#{appdir}/Unrestor.app/Contents/Helpers/unrestor",
+                   args:         ["uninstall"],
+                   sudo:         true,
+                   must_succeed: false
+  end
+
   uninstall quit: "app.unrestor"
 
   zap trash: [
     "~/Library/Application Support/Unrestor",
     "~/Library/Preferences/app.unrestor.plist",
   ]
+
+  caveats <<~EOS
+    One more step: install the background service (asks for your password once):
+      sudo unrestor install
+    Then try:
+      unrestor run -- sleep 30
+  EOS
 end

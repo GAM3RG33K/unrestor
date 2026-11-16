@@ -462,19 +462,3 @@ private final class FakeSleepControl: DaemonSleepSettingControlling {
     #expect(store.events == reads)
     #expect(sleep.events == events)
 }
-
-@Test func signingIdentityDerivesTheMatchingAppAndRequirement() throws {
-    let daemon = RuntimeSigningIdentity(
-        identifier: "app.unrestor.dev.daemon",
-        teamIdentifier: "TEAMID0000"
-    )
-    let app = try #require(daemon.appClientIdentity())
-
-    #expect(app.identifier == "app.unrestor.dev")
-    #expect(app.teamIdentifier == "TEAMID0000")
-    #expect(
-        app.codeSigningRequirement
-            == "anchor apple generic and certificate leaf[subject.OU] = \"TEAMID0000\""
-                + " and identifier \"app.unrestor.dev\""
-    )
-}

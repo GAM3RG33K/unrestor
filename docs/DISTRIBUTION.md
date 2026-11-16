@@ -1,66 +1,60 @@
-# Distribution and signing
+# Distribution
 
-## Why Apple signing is required
+Unrestor is built to ship without a paid Apple Developer account.
 
-The daemon is installed with `SMAppService`, which only registers a daemon from
-an Apple-signed app in `/Applications`. The app and daemon also verify each
-other by Team ID. An unsigned or ad-hoc build cannot run the real service. You
-need a paid Apple Developer Program membership and a **Developer ID
-Application** certificate.
+## What users get, and the catch
 
-## One-time setup
+The app is **ad-hoc signed**, not Developer ID signed or notarized. That means:
 
-1. Pick your bundle identifiers. The defaults in `project.yml` are `app.unrestor`
-   (app), `app.unrestor.daemon`, and `app.unrestor.cli`, with `.dev` variants for
-   debug builds. Use a reverse-DNS prefix you control, then search and replace
-   `app.unrestor` across `project.yml`, `Config/`, `Sources/`, `Tests/`,
-   `packaging/`.
-2. Replace `TEAMID0000` with your Team ID in `project.yml` and in
-   `Sources/UnrestorDaemonCore/BackgroundServiceEligibility.swift` (and the
-   matching test fixtures).
-3. Install the tools: `brew install xcodegen`.
-4. Store notarization credentials once:
-   `xcrun notarytool store-credentials unrestor-notary`.
+- macOS shows a "cannot verify" warning the first time. Users approve it in
+  **System Settings → Privacy & Security → Open Anyway**, or you give them the
+  Homebrew cask, which clears the quarantine mark for them.
+- Nothing about the daemon depends on an Apple Team ID. The root service is
+  installed by `sudo unrestor install` from a root-owned location, and trusts
+  only the one user who installed it. See [SECURITY.md](../SECURITY.md).
 
-Keep debug and release identifiers separate. A development copy must never share
-the production daemon label.
+If you later join the Apple Developer Program you can add Developer ID signing
+and notarization to `scripts/make-app.sh` without changing the architecture.
 
-## Development build
+## Build
 
 ```sh
-xcodegen generate
-xcodebuild -project Unrestor.xcodeproj -scheme Unrestor -configuration Debug \
-  -derivedDataPath /private/tmp/unrestor-derived -allowProvisioningUpdates build
+scripts/make-app.sh
 ```
 
-Copy the built app to `/Applications` to register the service.
+It builds a universal (Apple silicon and Intel) release, assembles
+`dist/Unrestor.app` with the CLI and daemon in `Contents/Helpers`, ad-hoc signs
+it, and writes `dist/Unrestor-VERSION.dmg` and a `.sha256`.
 
-## Cutting a release
+## Cut a release
 
-```sh
-git tag v0.1.0 && git push --tags      # creates a draft GitHub release
-export UNRESTOR_TEAM_ID=YOURTEAMID
-export UNRESTOR_NOTARY_PROFILE=unrestor-notary
-scripts/build-release.sh               # signs, notarizes, staples, prints SHA-256
-```
+1. Set the version in `Sources/UnrestorCore/Protocol.swift`
+   (`UnrestorVersion.current`) and add notes to `RELEASE-NOTES.md`. Commit.
+2. Tag and push:
 
-Attach `dist/Unrestor-0.1.0.dmg` to the draft release and publish it. The script
-publishes nothing itself.
+   ```sh
+   git tag v0.1.0 && git push --tags
+   ```
+
+3. The **Release** workflow checks the tag matches the source, runs the tests,
+   builds the DMG on GitHub's Mac runner, and publishes the release with the
+   DMG and its SHA-256. No certificates or secrets are involved.
+4. Update the Homebrew cask (below) with the new version and SHA-256.
 
 ## Channels
 
 | Channel | Who it serves | Effort |
 |---|---|---|
-| **GitHub release DMG** | Everyone | Required. This is the source of truth. |
-| **Your Homebrew tap** | People who use `brew` | Low. Create `homebrew-tap`, copy `packaging/unrestor.rb` to `Casks/unrestor.rb`, bump `version` and `sha256` per release. Install with `brew install --cask GAM3RG33K/tap/unrestor`. |
-| **Official homebrew-cask** | Wider reach | Needs a notable project (stars and age) and review. Apply once the tap is stable. |
-| **Mac App Store** | Not possible | The sandbox forbids a root daemon that changes `pmset`. |
+| **GitHub release DMG** | Everyone | Automatic on every tag. |
+| **Your Homebrew tap** | People who use `brew` | Low. Create the repo `GAM3RG33K/homebrew-tap`, copy `packaging/unrestor.rb` to `Casks/unrestor.rb`, and bump `version` and `sha256` per release. Install with `brew install --cask GAM3RG33K/tap/unrestor`. |
+| **Official homebrew-cask** | Wider reach | Not realistic yet: it asks for notarized apps and a notable project. |
+| **Mac App Store** | Not possible | The sandbox forbids a root daemon that changes `pmset`, and it needs a paid account. |
 
-A plain Homebrew *formula* cannot install the daemon, so distribute the app as a
-cask. The cask installs the app and links the `unrestor` command.
+A plain Homebrew *formula* would build from source but cannot install the root
+service for you, so the cask is the right shape.
 
 ## Updates
 
-v0.1 has no built-in updater. Homebrew users run `brew upgrade --cask unrestor`.
-DMG users download the new release. After an upgrade the app notices a daemon
-from an older build and re-registers it.
+v0.1 has no built-in updater. Homebrew users run `brew upgrade --cask unrestor`
+then `sudo unrestor install` to refresh the service. DMG users replace the app
+and run `sudo unrestor install` again; it is safe to repeat.

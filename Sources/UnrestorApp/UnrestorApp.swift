@@ -42,9 +42,12 @@ private struct MenuContent: View {
                     .padding(.vertical, 10)
             }
 
-            if case .needsSetup = model.service {
+            switch model.service {
+            case .notInstalled, .failed:
                 divider
                 setupRow.padding(16)
+            default:
+                EmptyView()
             }
 
             let others = model.requests.filter { $0.id != HoldRequest.manualID }
@@ -118,12 +121,34 @@ private struct MenuContent: View {
     }
 
     private var setupRow: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            if case .needsSetup(let message) = model.service {
-                Text(message).font(.callout).foregroundStyle(.secondary)
-            }
-            Button("Set Up Background Service…") { model.setUpService() }
+        VStack(alignment: .leading, spacing: 10) {
+            switch model.service {
+            case .notInstalled:
+                Text("One-time setup")
+                    .font(.callout.weight(.semibold))
+                Text("Unrestor needs a small background service to keep the Mac awake with the lid closed. macOS will ask for your password once.")
+                    .font(.callout).foregroundStyle(.secondary)
+                Button(model.installing ? "Installing…" : "Install Background Service…") {
+                    model.installService()
+                }
                 .buttonStyle(.borderedProminent)
+                .disabled(model.installing)
+                HStack {
+                    Button("Copy Terminal command") { model.copyInstallCommand() }
+                    Button("Help") { model.openHelp() }
+                }
+                .buttonStyle(.link)
+                .font(.caption)
+            case .failed(let message):
+                Text(message).font(.callout).foregroundStyle(.secondary)
+                HStack {
+                    Button("Reinstall…") { model.installService() }
+                    Button("Help") { model.openHelp() }
+                }
+                .buttonStyle(.link)
+            default:
+                EmptyView()
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
