@@ -68,7 +68,7 @@ final class Updater {
         guard !isBusy else { return }
         state = .checking
         do {
-            let (data, response) = try await Self.session.data(for: Self.request(UnrestorLinks.latestReleaseAPI))
+            let (data, response) = try await Self.session.data(for: Self.request(UnrestorLinks.latestReleaseAPI), delegate: RedirectGuard())
             lastChecked = Date()
             guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
                 throw UpdateError.message("GitHub answered with an error. Try again later.")
@@ -100,14 +100,14 @@ final class Updater {
 
             state = .downloading
             let dmg = work.appendingPathComponent("Unrestor-\(release.version).dmg")
-            let (downloaded, response) = try await Self.session.download(for: Self.request(release.dmgURL))
+            let (downloaded, response) = try await Self.session.download(for: Self.request(release.dmgURL), delegate: RedirectGuard())
             guard (response as? HTTPURLResponse)?.statusCode == 200 else {
                 throw UpdateError.message("The download failed. Try again later.")
             }
             try FileManager.default.moveItem(at: downloaded, to: dmg)
 
             state = .verifying
-            let (sumData, sumResponse) = try await Self.session.data(for: Self.request(release.checksumURL))
+            let (sumData, sumResponse) = try await Self.session.data(for: Self.request(release.checksumURL), delegate: RedirectGuard())
             guard (sumResponse as? HTTPURLResponse)?.statusCode == 200, sumData.count < 1_024,
                   let expected = ReleaseFeed.parseChecksum(String(decoding: sumData, as: UTF8.self))
             else { throw UpdateError.message("The release has no valid checksum, so it was not installed.") }
@@ -195,6 +195,17 @@ final class Updater {
     // MARK: Plumbing
 
     private enum UpdateError: Error { case message(String) }
+
+    /// GitHub redirects release downloads to its CDN. Follow only redirects that
+    /// stay inside the same HTTPS allowlist as the original URL.
+    private final class RedirectGuard: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
+        func urlSession(_ session: URLSession, task: URLSessionTask,
+                        willPerformHTTPRedirection response: HTTPURLResponse,
+                        newRequest request: URLRequest) async -> URLRequest? {
+            guard let url = request.url, UpdateURLPolicy.isAllowed(url) else { return nil }
+            return request
+        }
+    }
 
     private static func describe(_ error: Error) -> String {
         if case UpdateError.message(let text) = error { return text }
