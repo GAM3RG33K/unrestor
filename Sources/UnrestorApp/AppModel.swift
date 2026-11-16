@@ -98,7 +98,7 @@ final class AppModel {
         link.close()
     }
 
-    // MARK: Manual hold (shared with `unrestor on/off`)
+    // MARK: Manual hold (the menu switch)
 
     var manualRequest: HoldRequest? { requests.first { $0.id == HoldRequest.manualID } }
 

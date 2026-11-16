@@ -28,8 +28,8 @@ public struct HoldRequest: Codable, Equatable, Sendable {
         self.expiresAt = expiresAt
     }
 
-    /// The id of the single manual request, shared by `unrestor on` and the
-    /// menu's toggle, so turning it on twice does not stack.
+    /// The id of the single manual request, used by the menu-bar switch, so
+    /// turning it on twice does not stack.
     public static let manualID = "manual"
 
     /// Ids become file names, so they are restricted to a safe alphabet.
