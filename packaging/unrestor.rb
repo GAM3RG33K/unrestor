@@ -5,7 +5,7 @@
 # the SHA-256 into the release notes and attaches Unrestor-VERSION.dmg.sha256).
 cask "unrestor" do
   version "0.1.0"
-  sha256 "REPLACE_WITH_DMG_SHA256"
+  sha256 "a1f027b03d4c0dc52b9d6d0555c6f7a1fc398d62c71d03198e1e08fa95ac57e0"
 
   url "https://github.com/GAM3RG33K/unrestor/releases/download/v#{version}/Unrestor-#{version}.dmg"
   name "Unrestor"
