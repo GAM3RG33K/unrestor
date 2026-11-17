@@ -2,10 +2,9 @@
 # has no scripts that call out, so visitors' browsers talk only to the site's own
 # host. At deploy time, __SITE_URL__ and __DATE__ in the files are replaced.
 #
-# To serve from your own domain, set the repository variable SITE_URL
-# (Settings -> Secrets and variables -> Actions -> Variables), for example
-# https://unrestor.example.com , and set the custom domain in Settings -> Pages.
-# Without it the page uses the github.io address.
+# The site is served from https://unrestor.harshjoshi.dev (also set as the custom
+# domain in Settings -> Pages). To use a different address, set the repository
+# variable SITE_URL (Settings -> Secrets and variables -> Actions -> Variables).
 name: Pages
 
 on:
@@ -36,9 +35,7 @@ jobs:
         env:
           SITE_URL_VAR: ${{ vars.SITE_URL }}
         run: |
-          owner="${GITHUB_REPOSITORY_OWNER}"
-          name="${GITHUB_REPOSITORY#*/}"
-          default="https://$(echo "$owner" | tr '[:upper:]' '[:lower:]').github.io/$name"
+          default="https://unrestor.harshjoshi.dev"
           url="${SITE_URL_VAR:-$default}"
           url="${url%/}"
           case "$url" in https://*) ;; *) echo "SITE_URL must start with https://" >&2; exit 1;; esac

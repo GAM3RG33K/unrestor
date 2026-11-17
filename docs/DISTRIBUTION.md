@@ -101,13 +101,13 @@ To test the whole path, build a copy with an older version and run
 `site/` is a static page (no build step, no third-party requests) published to
 GitHub Pages by the **Pages** workflow on every change under `site/`.
 
-- **Your own domain.** Set the repository variable `SITE_URL` (Settings →
-  Secrets and variables → Actions → Variables) to, for example,
-  `https://unrestor.example.com`, and set the same custom domain in
-  Settings → Pages. The workflow replaces `__SITE_URL__` in the canonical link,
-  Open Graph and Twitter tags, structured data, `sitemap.xml`, `robots.txt`,
-  `llms.txt`, and `llms-full.txt`. Without the variable it uses the
-  `github.io` address.
+- **Domain.** The site is served from `https://unrestor.harshjoshi.dev`. That is
+  the default in the Pages workflow, and it is set as the custom domain in
+  Settings → Pages (with a `CNAME` DNS record pointing at `gam3rg33k.github.io`).
+  The workflow replaces `__SITE_URL__` in the canonical link, Open Graph and
+  Twitter tags, structured data, `sitemap.xml`, `robots.txt`, `llms.txt`, and
+  `llms-full.txt`. To use another address, set the repository variable
+  `SITE_URL`.
 - **Social image.** `site/og-image.png` is generated from
   `assets/brand/og-image.svg` (see [BRAND.md](BRAND.md)).
 - **For search and AI tools.** The page has structured data (software
