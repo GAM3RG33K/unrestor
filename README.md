@@ -14,7 +14,7 @@ A small, free macOS tool that keeps your MacBook awake with the lid shut, for ex
 [![Pull requests: closed](https://img.shields.io/badge/pull_requests-closed-lightgrey)](CONTRIBUTING.md)
 [![Issues: welcome](https://img.shields.io/badge/issues-welcome-brightgreen)](https://github.com/GAM3RG33K/unrestor/issues)
 
-[Download](https://github.com/GAM3RG33K/unrestor/releases/latest) &middot; [Website](https://gam3rg33k.github.io/unrestor/) &middot; [Install](#install) &middot; [Commands](#commands)
+[Download](https://github.com/GAM3RG33K/unrestor/releases/latest) &middot; [Website](https://unrestor.harshjoshi.dev/) &middot; [Install](#install) &middot; [Commands](#commands)
 
 </div>
 

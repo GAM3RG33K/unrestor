@@ -7,11 +7,17 @@
 <meta name="description" content="Unrestor is a free, open-source macOS app that keeps your MacBook awake with the lid shut while a command, process, or timer runs, then lets it sleep again.">
 <meta name="keywords" content="macOS keep awake, MacBook lid closed, prevent sleep, caffeinate alternative, pmset disablesleep, long running commands, menu bar app, open source">
 <meta name="author" content="GAM3RG33K">
+<meta name="application-name" content="Unrestor">
+<meta name="apple-mobile-web-app-title" content="Unrestor">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#f4f1ea">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; font-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
 <link rel="canonical" href="__SITE_URL__/">
+<link rel="alternate" hreflang="en" href="__SITE_URL__/">
+<link rel="alternate" hreflang="x-default" href="__SITE_URL__/">
 
 <meta property="og:site_name" content="Unrestor">
 <meta property="og:type" content="website">
@@ -19,11 +25,13 @@
 <meta property="og:title" content="Unrestor — Close the lid. Your work keeps running.">
 <meta property="og:description" content="Keep your MacBook awake with the lid closed while a command, process, or timer runs. Free, open source, and tiny.">
 <meta property="og:image" content="__SITE_URL__/og-image.png">
+<meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Unrestor: an open eye with a crescent moon for a pupil, and the line Close the lid. Your work keeps running.">
 <meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="__SITE_URL__/">
 <meta name="twitter:title" content="Unrestor — Close the lid. Your work keeps running.">
 <meta name="twitter:description" content="Keep your MacBook awake with the lid closed while a command, process, or timer runs. Free, open source, and tiny.">
 <meta name="twitter:image" content="__SITE_URL__/og-image.png">
@@ -42,11 +50,29 @@
   "@context": "https://schema.org",
   "@graph": [
     {
+      "@type": "Person",
+      "@id": "__SITE_URL__/#author",
+      "name": "GAM3RG33K",
+      "url": "https://github.com/GAM3RG33K",
+      "sameAs": ["https://github.com/GAM3RG33K"]
+    },
+    {
       "@type": "WebSite",
       "@id": "__SITE_URL__/#website",
       "url": "__SITE_URL__/",
       "name": "Unrestor",
       "description": "Keep your MacBook awake with the lid closed while work runs.",
+      "inLanguage": "en",
+      "publisher": { "@id": "__SITE_URL__/#author" }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "__SITE_URL__/#webpage",
+      "url": "__SITE_URL__/",
+      "name": "Unrestor — Keep your MacBook awake with the lid closed",
+      "isPartOf": { "@id": "__SITE_URL__/#website" },
+      "about": { "@id": "__SITE_URL__/#app" },
+      "primaryImageOfPage": { "@type": "ImageObject", "url": "__SITE_URL__/og-image.png", "width": 1200, "height": 630 },
       "inLanguage": "en"
     },
     {
@@ -65,13 +91,32 @@
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
       "codeRepository": "https://github.com/GAM3RG33K/unrestor",
       "programmingLanguage": "Swift",
-      "author": { "@type": "Person", "name": "GAM3RG33K", "url": "https://github.com/GAM3RG33K" },
+      "applicationSubCategory": "Power management",
+      "softwareHelp": { "@type": "WebPage", "url": "https://github.com/GAM3RG33K/unrestor#readme" },
+      "releaseNotes": "https://github.com/GAM3RG33K/unrestor/blob/main/RELEASE-NOTES.md",
+      "screenshot": "__SITE_URL__/og-image.png",
+      "sameAs": ["https://github.com/GAM3RG33K/unrestor"],
+      "mainEntityOfPage": { "@id": "__SITE_URL__/#webpage" },
+      "author": { "@id": "__SITE_URL__/#author" },
       "featureList": [
         "Keeps a MacBook awake with the lid closed, on battery or on power",
         "Holds end automatically when the command, process, or timer ends",
         "Battery floor, heat limit, and power-only mode enforced by the background service",
         "Menu-bar switch with timers from 30 minutes to 8 hours and a live countdown",
         "No account, no analytics, no tracking"
+      ]
+    },
+    {
+      "@type": "HowTo",
+      "@id": "__SITE_URL__/#howto",
+      "name": "How to keep a MacBook awake with the lid closed using Unrestor",
+      "description": "Install Unrestor with Homebrew, set up its background service once, then wrap any command so the Mac stays awake until the command ends.",
+      "tool": [{ "@type": "HowToTool", "name": "Terminal" }, { "@type": "HowToTool", "name": "Homebrew" }],
+      "step": [
+        { "@type": "HowToStep", "position": 1, "name": "Install Unrestor", "text": "Run: brew install --cask GAM3RG33K/tap/unrestor" },
+        { "@type": "HowToStep", "position": 2, "name": "Set up the background service once", "text": "Run: sudo unrestor install. It asks for your password and installs a small service that holds the sleep setting." },
+        { "@type": "HowToStep", "position": 3, "name": "Wrap a command", "text": "Run: unrestor run -- npm run build, or use the menu-bar switch, a timer, or unrestor watch PID." },
+        { "@type": "HowToStep", "position": 4, "name": "Close the lid", "text": "The work keeps running. When the command ends or a battery or heat limit is reached, the Mac is allowed to sleep again." }
       ]
     },
     {

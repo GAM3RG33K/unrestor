@@ -19,7 +19,7 @@ Typical use:
 
 ## Docs
 
-- [Website](__SITE_URL__/): overview, install command, FAQ
+- [Website](__SITE_URL__/): overview, install command, FAQ (canonical home of the project)
 - [README](https://github.com/GAM3RG33K/unrestor#readme): install options, commands, troubleshooting, updates, uninstall
 - [Architecture](https://github.com/GAM3RG33K/unrestor/blob/main/docs/ARCHITECTURE.md): how a hold works, the protocol, restore records, the updater
 - [Security policy](https://github.com/GAM3RG33K/unrestor/blob/main/SECURITY.md): exactly what the root background service can and cannot do
