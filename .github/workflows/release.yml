@@ -5,12 +5,19 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  # Re-publish the cask for an existing release, e.g. to seed the tap.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish to the Homebrew tap (e.g. v0.1.1)"
+        required: true
 
 permissions:
   contents: write
 
 jobs:
   release:
+    if: github.event_name == 'push'
     runs-on: macos-latest
     timeout-minutes: 30
     steps:
@@ -35,3 +42,65 @@ jobs:
             --notes "SHA-256: \`$sha\`
 
           Not notarized. See the install steps in the README."
+
+  # Updates Casks/unrestor.rb in the tap repo with this release's version and
+  # SHA-256. Needs the TAP_TOKEN secret: a fine-grained token limited to the
+  # tap repo with Contents read/write. Without it this job warns and skips.
+  cask:
+    needs: release
+    if: ${{ !cancelled() && (needs.release.result == 'success' || needs.release.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TAP_REPO: GAM3RG33K/homebrew-tap
+      TAG: ${{ inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Check the secret exists
+        id: gate
+        env:
+          TAP_TOKEN: ${{ secrets.TAP_TOKEN }}
+        run: |
+          if [ -z "$TAP_TOKEN" ]; then
+            echo "::warning::TAP_TOKEN is not set; skipping the Homebrew tap update."
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.go == 'true'
+      - name: Read the release checksum
+        if: steps.gate.outputs.go == 'true'
+        run: |
+          version="${TAG#v}"
+          case "$version" in *[!0-9.]*|"") echo "bad tag: $TAG" >&2; exit 1;; esac
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" \
+            --pattern "Unrestor-$version.dmg.sha256" --dir "$RUNNER_TEMP"
+          sha="$(cut -d' ' -f1 "$RUNNER_TEMP/Unrestor-$version.dmg.sha256")"
+          case "$sha" in *[!0-9a-f]*) echo "bad checksum" >&2; exit 1;; esac
+          [ "${#sha}" -eq 64 ] || { echo "bad checksum length" >&2; exit 1; }
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          echo "SHA=$sha" >> "$GITHUB_ENV"
+      - name: Check out the tap
+        if: steps.gate.outputs.go == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.TAP_REPO }}
+          token: ${{ secrets.TAP_TOKEN }}
+          path: tap
+      - name: Update the cask and push
+        if: steps.gate.outputs.go == 'true'
+        run: |
+          mkdir -p tap/Casks
+          cp packaging/unrestor.rb tap/Casks/unrestor.rb
+          sed -i "s/^  version \".*\"/  version \"$VERSION\"/" tap/Casks/unrestor.rb
+          sed -i "s/^  sha256 \".*\"/  sha256 \"$SHA\"/" tap/Casks/unrestor.rb
+          grep -q "version \"$VERSION\"" tap/Casks/unrestor.rb
+          grep -q "sha256 \"$SHA\"" tap/Casks/unrestor.rb
+          cd tap
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/unrestor.rb
+          if git diff --cached --quiet; then echo "Cask already up to date."; exit 0; fi
+          git commit -m "unrestor $VERSION"
+          git push

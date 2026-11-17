@@ -46,7 +46,7 @@ it, and writes `dist/Unrestor-VERSION.dmg` and a `.sha256`.
 | Channel | Who it serves | Effort |
 |---|---|---|
 | **GitHub release DMG** | Everyone | Automatic on every tag. |
-| **Your Homebrew tap** | People who use `brew` | Low. Create the repo `GAM3RG33K/homebrew-tap`, copy `packaging/unrestor.rb` to `Casks/unrestor.rb`, and bump `version` and `sha256` per release. Install with `brew install --cask GAM3RG33K/tap/unrestor`. |
+| **Your Homebrew tap** | People who use `brew` | Low. Create the repo `GAM3RG33K/homebrew-tap`, and add the `TAP_TOKEN` secret (fine-grained token, Contents read/write on that repo only). The Release workflow then copies `packaging/unrestor.rb` to `Casks/unrestor.rb` and sets `version` and `sha256` on every tag. To publish an existing release, run the Release workflow manually with its tag. Install with `brew install --cask GAM3RG33K/tap/unrestor`. |
 | **Official homebrew-cask** | Wider reach | Not realistic yet: it asks for notarized apps and a notable project. |
 | **Mac App Store** | Not possible | The sandbox forbids a root daemon that changes `pmset`, and it needs a paid account. |
 

@@ -1,8 +1,3 @@
-## What changed
-
-## Why
-
-## Checked
-
-- [ ] `swift build` and `swift test` pass
-- [ ] Anything touching the daemon keeps the hold released on every exit path
+**Unrestor does not accept pull requests.** It is open source but not open for
+contributions; please fork it instead. See CONTRIBUTING.md. PRs are closed
+without review.

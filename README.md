@@ -166,11 +166,13 @@ what it can and cannot do.
 
 ## Contributing
 
+Unrestor is 100% open source, but it is **not open for contributions**: pull
+requests are not accepted. Fork it and make it yours (Apache-2.0). Bug reports
+are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ```sh
 swift build && swift test
 ```
-
-See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Credits
 

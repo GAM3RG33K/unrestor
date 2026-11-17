@@ -1,8 +1,7 @@
-# Homebrew cask for Unrestor. Copy this file to Casks/unrestor.rb in your tap
-# repository (github.com/GAM3RG33K/homebrew-tap), then:
+# Homebrew cask for Unrestor. This is the source of truth: the Release workflow
+# copies it to Casks/unrestor.rb in github.com/GAM3RG33K/homebrew-tap and sets
+# `version` and `sha256` for each release. Edit everything else here.
 #   brew install --cask GAM3RG33K/tap/unrestor
-# Update `version` and `sha256` for every release (the release workflow writes
-# the SHA-256 into the release notes and attaches Unrestor-VERSION.dmg.sha256).
 cask "unrestor" do
   version "0.1.0"
   sha256 "a1f027b03d4c0dc52b9d6d0555c6f7a1fc398d62c71d03198e1e08fa95ac57e0"
