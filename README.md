@@ -227,11 +227,14 @@ For your own fork:
 swift build && swift test
 ```
 
-## Credits
+## Inspiration
 
 Unrestor started from [Let It Brew](https://github.com/ruban-24/letitbrew) by
-Ruban (Apache-2.0), and is a separate project with its own name and icon. See
+Ruban (Apache-2.0), which showed how small and careful a tool like this can be.
+It is a separate project with its own name, icon, and direction. See
 [NOTICE](NOTICE).
+
+Built by [Harshvardhan Joshi](https://harshjoshi.dev).
 
 ## License
 
