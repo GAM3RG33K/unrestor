@@ -1,5 +1,9 @@
 # Release notes
 
+## 0.1.6
+
+- No code changes. Used to verify the Homebrew update flow from 0.1.5.
+
 ## 0.1.5
 
 - Homebrew installs update through Homebrew: **Download & Install** opens Terminal, runs the upgrade, and restarts the background service. Direct installs still update in place.
