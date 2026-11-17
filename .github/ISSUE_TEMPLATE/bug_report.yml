@@ -2,11 +2,23 @@ name: Bug report
 description: Something did not work as described
 labels: [bug]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Unrestor is a personal project, so there is no guarantee this will be answered or fixed, and no timeline. Pull requests are not accepted.
+
+        **Security problem?** Don't post details here. See SECURITY.md for private reporting.
   - type: input
     id: versions
     attributes:
       label: Unrestor, macOS, and Mac model
-      placeholder: "0.1.0, macOS 15.1, MacBook Air M2"
+      placeholder: "0.1.6, macOS 15.1, MacBook Air M2"
+    validations: { required: true }
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install it?
+      options: [Homebrew, DMG, Built from source]
     validations: { required: true }
   - type: textarea
     id: what

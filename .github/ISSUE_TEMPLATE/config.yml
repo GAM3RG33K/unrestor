@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/GAM3RG33K/unrestor/security/advisories/new
+    about: Report it privately. Please don't post exploit details in a public issue.
+  - name: Want to change the code?
+    url: https://github.com/GAM3RG33K/unrestor/blob/main/CONTRIBUTING.md
+    about: Pull requests aren't accepted, but forks are welcome. Read this first.

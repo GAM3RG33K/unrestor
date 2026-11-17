@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Requests are read, but this project is deliberately small and most will not be built. You are free to fork it (Apache-2.0) and add it yourself.
+        Ideas are read, but Unrestor is a deliberately small personal project, so most requests won't be built and there is no timeline. You are free to fork it (Apache-2.0) and add it yourself. Pull requests are not accepted.
   - type: textarea
     id: idea
     attributes:

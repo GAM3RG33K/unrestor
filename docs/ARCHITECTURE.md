@@ -86,9 +86,15 @@ positionally so paths cannot inject commands). All of it is unit tested, and
 the script is run for real against temp folders, including the failure and
 "app never quit" paths.
 
+`InstallSource` tells a Homebrew install (the cask's `Caskroom` folder plus
+`brew`) from a direct one, and `BrewUpdateScript` is the fixed script Terminal
+runs for a Homebrew install: `brew update`, `brew upgrade --cask`, then
+`sudo unrestor install`. Its arguments are passed positionally and it is tested
+against fake `brew`, `sudo`, and `unrestor` programs, including the failure path.
+
 `UnrestorApp/Updater` does the I/O: an ephemeral `URLSession` (no cookies or
 cache), `hdiutil attach` to read the DMG, `codesign --verify`, and a detached
-`/bin/sh` that finishes the swap after the app exits. The updater never touches
+`/bin/sh` that finishes the swap after the app exits. For a direct install the updater never touches
 the root service; the app compares the service's version (from `HELLO`) with its
 own and offers to re-run the installer.
 

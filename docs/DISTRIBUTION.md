@@ -33,13 +33,15 @@ it, and writes `dist/Unrestor-VERSION.dmg` and a `.sha256`.
 2. Tag and push:
 
    ```sh
-   git tag v0.1.0 && git push --tags
+   git tag v0.1.6 && git push origin main v0.1.6
    ```
 
 3. The **Release** workflow checks the tag matches the source, runs the tests,
    builds the DMG on GitHub's Mac runner, and publishes the release with the
-   DMG and its SHA-256. No certificates or secrets are involved.
-4. Update the Homebrew cask (below) with the new version and SHA-256.
+   DMG and its SHA-256. No Apple certificates are involved.
+4. A second job then updates the Homebrew cask in the tap from that published
+   release (see below). It needs the `TAP_TOKEN` secret and skips with a
+   warning if it is missing.
 
 ## Channels
 
@@ -78,8 +80,17 @@ check. The checksum guards against corruption, not a hijacked GitHub account.
 If the app is not in a folder the user can write to, the updater opens the
 release page instead.
 
-Homebrew users can still run `brew upgrade --cask unrestor`. After any update,
-`sudo unrestor install` refreshes the service from the terminal.
+**Homebrew installs update through Homebrew.** The app detects a Homebrew
+install (the cask's folder in Homebrew's `Caskroom` plus `brew` beside it).
+There, **Download & Install** doesn't swap the app itself, which would leave
+Homebrew's record out of date. It opens Terminal and runs:
+
+```sh
+brew update && brew upgrade --cask GAM3RG33K/tap/unrestor && sudo unrestor install
+```
+
+The last step is needed because `brew upgrade` removes the root service when it
+removes the old version. Direct installs never lose the service on update.
 
 To test the whole path, build a copy with an older version and run
 `Unrestor.app/Contents/MacOS/Unrestor --update-now` (or

@@ -6,8 +6,12 @@ Security and power-safety fixes go into the newest release only.
 
 ## Reporting a vulnerability
 
-Use GitHub's private vulnerability reporting for this repository. Do not put
-exploit details, credentials, or private paths in a public issue. Include the
+Use GitHub's private vulnerability reporting for this repository
+(**Security → Report a vulnerability**). If that is not available, open an issue
+that says only that you have a security report, with no details, and ask for a
+private channel. Do not put exploit details, credentials, or private paths in a
+public issue. Please report rather than send a fix: this project does not accept
+pull requests (see [CONTRIBUTING.md](CONTRIBUTING.md)). Include the
 Unrestor version, macOS version, Mac model, and the smallest safe reproduction.
 
 ## What the background service is
