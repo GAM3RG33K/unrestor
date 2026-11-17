@@ -1,6 +1,6 @@
 # Release notes
 
-## Unreleased
+## 0.1.5
 
 - Homebrew installs update through Homebrew: **Download & Install** opens Terminal, runs the upgrade, and restarts the background service. Direct installs still update in place.
 
