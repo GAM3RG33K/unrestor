@@ -20,6 +20,7 @@ final class Updater {
         case upToDate
         case available(ReleaseInfo)
         case downloading
+        case handedToTerminal
         case verifying
         case installing
         case failed(String, ReleaseInfo?)
@@ -28,6 +29,8 @@ final class Updater {
     private(set) var state: State = .idle
     private(set) var lastChecked: Date?
 
+    /// Homebrew installs update through Homebrew; everything else swaps in place.
+    let source = InstallSource.detect()
     let current = AppVersion(UnrestorVersion.current) ?? AppVersion(0, 0, 0)
     private var timer: Timer?
 
@@ -88,6 +91,15 @@ final class Updater {
 
     func install() async {
         guard case .available(let release) = state else { return }
+        if case .homebrew(let brewPath) = source {
+            do {
+                try Self.openBrewUpdateInTerminal(brewPath: brewPath, version: release.version)
+                state = .handedToTerminal
+            } catch {
+                state = .failed("Terminal could not be opened. Run this yourself: brew update && brew upgrade --cask \(BrewUpdateScript.cask) && sudo unrestor install", release)
+            }
+            return
+        }
         guard canInstallInPlace else {
             NSWorkspace.shared.open(release.pageURL)
             state = .failed("Unrestor is not in a folder it can update. Download the new version from the release page.", release)
@@ -137,6 +149,34 @@ final class Updater {
     }
 
     // MARK: Steps
+
+    /// Writes the update script to a private temp folder and opens it in
+    /// Terminal, where Homebrew and `sudo` can ask for what they need.
+    private static func openBrewUpdateInTerminal(brewPath: String, version: AppVersion) throws {
+        let folder = FileManager.default.temporaryDirectory
+            .appendingPathComponent("unrestor-brew-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(
+            at: folder, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
+        let script = folder.appendingPathComponent("Update Unrestor.command")
+        try Data(BrewUpdateScript.text.utf8).write(to: script)
+        try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: script.path)
+        // Terminal opens a document, not a command line, so a small launcher
+        // passes the arguments, then removes the whole temp folder.
+        let launcher = folder.appendingPathComponent("Run.command")
+        let line = "#!/bin/sh\n/bin/sh \(shellQuoted(script.path)) \(shellQuoted(brewPath)) \(shellQuoted(version.description))\nrm -rf \"$(dirname \"$0\")\"\n"
+        try Data(line.utf8).write(to: launcher)
+        try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: launcher.path)
+        let open = Process()
+        open.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+        open.arguments = ["-a", "Terminal", launcher.path]
+        try open.run()
+        open.waitUntilExit()
+        guard open.terminationStatus == 0 else { throw UpdateError.message("open failed") }
+    }
+
+    private static func shellQuoted(_ text: String) -> String {
+        "'" + text.replacingOccurrences(of: "'", with: "'\\''") + "'"
+    }
 
     /// Mounts the DMG, copies the app out, and checks it is what the release claims.
     private static func extractApp(from dmg: URL, into work: URL, expected: AppVersion) async throws -> URL {

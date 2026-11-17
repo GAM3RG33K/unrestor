@@ -198,7 +198,9 @@ private struct MenuContent: View {
             return AnyView(VStack(alignment: .leading, spacing: 8) {
                 Text("Unrestor \(release.version.description) is available")
                     .font(.callout.weight(.semibold))
-                Text("You have \(UnrestorVersion.current). Unrestor restarts to finish. A manual hold ends; commands you started keep running.")
+                Text(updater.source == .direct
+                     ? "You have \(UnrestorVersion.current). Unrestor restarts to finish. A manual hold ends; commands you started keep running."
+                     : "You have \(UnrestorVersion.current). Installed with Homebrew, so Terminal opens and runs the upgrade, then restarts the background service. It asks for your password there.")
                     .font(.caption).foregroundStyle(.secondary)
                 HStack {
                     Button("Download & Install") { Task { await updater.install() } }
@@ -206,6 +208,12 @@ private struct MenuContent: View {
                     Button("What's New") { updater.openReleasePage() }
                         .buttonStyle(.link)
                 }
+            }.frame(maxWidth: .infinity, alignment: .leading))
+        case .handedToTerminal:
+            return AnyView(VStack(alignment: .leading, spacing: 8) {
+                Text("Finish in Terminal").font(.callout.weight(.semibold))
+                Text("Homebrew is updating Unrestor, which then restarts. Enter your password in Terminal when it asks, to restart the background service.")
+                    .font(.caption).foregroundStyle(.secondary)
             }.frame(maxWidth: .infinity, alignment: .leading))
         case .downloading, .verifying, .installing:
             let text: String = {

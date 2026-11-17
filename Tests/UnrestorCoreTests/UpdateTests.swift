@@ -176,3 +176,77 @@ private func deadPID() throws -> Int32 {
     #expect(settings.onlyWhileConnectedToPower)
     #expect(settings.checkForUpdates)               // default on, and can be turned off
 }
+
+// MARK: - Install source and the Homebrew update script
+
+@Test func aHomebrewInstallIsDetectedOnEitherPrefix() {
+    let apple = Set(["/opt/homebrew/Caskroom/unrestor", "/opt/homebrew/bin/brew"])
+    #expect(InstallSource.detect(fileExists: apple.contains) == .homebrew(brewPath: "/opt/homebrew/bin/brew"))
+    let intel = Set(["/usr/local/Caskroom/unrestor", "/usr/local/bin/brew"])
+    #expect(InstallSource.detect(fileExists: intel.contains) == .homebrew(brewPath: "/usr/local/bin/brew"))
+}
+
+@Test func withoutBothHomebrewMarkersTheInstallIsDirect() {
+    #expect(InstallSource.detect(fileExists: { _ in false }) == .direct)
+    // A leftover Caskroom folder with no brew, or brew without the cask, is not Homebrew.
+    #expect(InstallSource.detect(fileExists: { $0 == "/opt/homebrew/Caskroom/unrestor" }) == .direct)
+    #expect(InstallSource.detect(fileExists: { $0 == "/opt/homebrew/bin/brew" }) == .direct)
+}
+
+@Test func theBrewScriptUpdatesThenRestartsTheService() throws {
+    let dir = FileManager.default.temporaryDirectory
+        .appendingPathComponent("unrestor-brew-test-\(UUID().uuidString)")
+    let bin = dir.appendingPathComponent("bin")
+    try FileManager.default.createDirectory(at: bin, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: dir) }
+    let log = dir.appendingPathComponent("calls.log")
+
+    func fake(_ name: String) throws {
+        let url = bin.appendingPathComponent(name)
+        try Data("#!/bin/sh\necho \"\(name) $*\" >> '\(log.path)'\n".utf8).write(to: url)
+        chmod(url.path, 0o755)
+    }
+    try fake("brew"); try fake("unrestor"); try fake("sudo")
+    // sudo runs the program it is given, as the real one does.
+    try Data("#!/bin/sh\necho \"sudo $*\" >> '\(log.path)'\n\"$@\"\n".utf8)
+        .write(to: bin.appendingPathComponent("sudo"))
+
+    let script = dir.appendingPathComponent("update.sh")
+    try Data(BrewUpdateScript.text.utf8).write(to: script)
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/bin/sh")
+    process.arguments = [script.path, bin.appendingPathComponent("brew").path, "9.9.9"]
+    process.environment = ["PATH": "\(bin.path):/usr/bin:/bin"]
+    process.standardInput = FileHandle.nullDevice
+    process.standardOutput = FileHandle.nullDevice
+    try process.run(); process.waitUntilExit()
+
+    #expect(process.terminationStatus == 0)
+    let calls = try String(contentsOf: log, encoding: .utf8).split(separator: "\n").map(String.init)
+    #expect(calls == [
+        "brew update",
+        "brew upgrade --cask GAM3RG33K/tap/unrestor",
+        "sudo \(bin.path)/unrestor install",
+        "unrestor install",
+    ])
+    #expect(!FileManager.default.fileExists(atPath: script.path), "the script removes itself")
+}
+
+@Test func theBrewScriptSkipsTheServiceWhenTheUpgradeFails() throws {
+    let dir = FileManager.default.temporaryDirectory
+        .appendingPathComponent("unrestor-brew-test-\(UUID().uuidString)")
+    try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: dir) }
+    let brew = dir.appendingPathComponent("brew")
+    try Data("#!/bin/sh\nexit 1\n".utf8).write(to: brew)
+    chmod(brew.path, 0o755)
+    let script = dir.appendingPathComponent("update.sh")
+    try Data(BrewUpdateScript.text.utf8).write(to: script)
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/bin/sh")
+    process.arguments = [script.path, brew.path, "9.9.9"]
+    process.standardInput = FileHandle.nullDevice
+    process.standardOutput = FileHandle.nullDevice
+    try process.run(); process.waitUntilExit()
+    #expect(process.terminationStatus == 1)
+}

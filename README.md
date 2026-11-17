@@ -145,7 +145,17 @@ checksum catches a corrupt download, not a compromised GitHub account.
 If the app asks to **Update Background Service**, do that: it makes the root
 service match the new app (macOS asks for your password).
 
-With Homebrew, `brew upgrade --cask unrestor` also works.
+**Installed with Homebrew?** The app notices and updates through Homebrew
+instead, so Homebrew's record stays correct. **Download & Install** opens
+Terminal and runs:
+
+```sh
+brew update && brew upgrade --cask GAM3RG33K/tap/unrestor && sudo unrestor install
+```
+
+Enter your password in Terminal when it asks; that last step restarts the
+background service, which `brew upgrade` removes. You can run the same line
+yourself any time.
 
 ## Uninstall
 

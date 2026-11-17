@@ -1,5 +1,9 @@
 # Release notes
 
+## Unreleased
+
+- Homebrew installs update through Homebrew: **Download & Install** opens Terminal, runs the upgrade, and restarts the background service. Direct installs still update in place.
+
 ## 0.1.4
 
 - No code changes. Used to verify updating through Homebrew.
