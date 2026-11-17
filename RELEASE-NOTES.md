@@ -1,5 +1,11 @@
 # Release notes
 
+## 0.1.3
+
+- Cask uses Homebrew's current `depends_on macos` syntax.
+- The background service no longer changes the process-wide umask while binding its socket; it sets a private umask once at startup. This also fixes flaky tests.
+- Used to verify the in-app update path from 0.1.2.
+
 ## 0.1.2
 
 - The Homebrew cask is now updated automatically by the release workflow.

@@ -42,14 +42,14 @@ public final class SocketServer: @unchecked Sendable {
             for (i, byte) in bytes.enumerated() { raw[i] = byte }
             raw[bytes.count] = 0
         }
-        // Create the socket private from the start: no window where others can connect.
-        let oldMask = umask(0o177)
+        // The daemon sets a private process umask at startup, so the socket is
+        // created private. This code never touches the process-wide umask, which
+        // would race with other threads (and with parallel tests).
         let bound = withUnsafePointer(to: &address) {
             $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
                 Darwin.bind(sock, $0, socklen_t(MemoryLayout<sockaddr_un>.size))
             }
         }
-        umask(oldMask)
         guard bound == 0 else {
             let message = String(cString: strerror(errno))
             Darwin.close(sock)

@@ -11,6 +11,10 @@ guard geteuid() == 0 else {
     exit(EX_NOPERM)
 }
 
+// Everything this process creates (the socket, state files) is private to root
+// unless code chmods it deliberately.
+umask(0o077)
+
 // The one user allowed to connect comes from the root-owned launchd job.
 var allowedUID: uid_t?
 let arguments = CommandLine.arguments

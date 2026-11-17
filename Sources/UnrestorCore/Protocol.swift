@@ -1,7 +1,7 @@
 import Foundation
 
 public enum UnrestorVersion {
-    public static let current = "0.1.2"
+    public static let current = "0.1.3"
 }
 
 /// Paths and limits shared by the CLI, the app, and the root daemon.
