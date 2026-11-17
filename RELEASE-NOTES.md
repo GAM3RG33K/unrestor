@@ -1,5 +1,10 @@
 # Release notes
 
+## 0.1.2
+
+- The Homebrew cask is now updated automatically by the release workflow.
+- The project is open source but not open for contributions; fork it instead.
+
 ## 0.1.1
 
 - In-app updates: a daily check of GitHub's release page (optional), then
