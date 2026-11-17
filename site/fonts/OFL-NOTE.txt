@@ -1,0 +1,4 @@
+Plus Jakarta Sans (c) The Plus Jakarta Sans Project Authors
+(https://github.com/tokotype/PlusJakartaSans), licensed under the SIL Open Font
+License 1.1: https://openfontlicense.org
+It is served from this site so visitors' browsers make no request to a font host.

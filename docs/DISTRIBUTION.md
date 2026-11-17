@@ -95,3 +95,22 @@ removes the old version. Direct installs never lose the service on update.
 To test the whole path, build a copy with an older version and run
 `Unrestor.app/Contents/MacOS/Unrestor --update-now` (or
 `open -n Unrestor.app --args --update-now`): it checks, installs, and relaunches.
+
+## The website
+
+`site/` is a static page (no build step, no third-party requests) published to
+GitHub Pages by the **Pages** workflow on every change under `site/`.
+
+- **Your own domain.** Set the repository variable `SITE_URL` (Settings →
+  Secrets and variables → Actions → Variables) to, for example,
+  `https://unrestor.example.com`, and set the same custom domain in
+  Settings → Pages. The workflow replaces `__SITE_URL__` in the canonical link,
+  Open Graph and Twitter tags, structured data, `sitemap.xml`, `robots.txt`,
+  `llms.txt`, and `llms-full.txt`. Without the variable it uses the
+  `github.io` address.
+- **Social image.** `site/og-image.png` is generated from
+  `assets/brand/og-image.svg` (see [BRAND.md](BRAND.md)).
+- **For search and AI tools.** The page has structured data (software
+  application and FAQ), a sitemap, and `llms.txt` / `llms-full.txt`.
+- **Preview locally.** Copy `site/` somewhere, replace `__SITE_URL__` with
+  `http://localhost:8000`, and run `python3 -m http.server 8000` in it.

@@ -3,317 +3,870 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Unrestor — Close the lid. Your work keeps running.</title>
-<meta name="description" content="A free, open-source, minimal macOS keep-awake tool for long-running commands. Close the lid; your work keeps running, then your Mac sleeps.">
-<meta name="color-scheme" content="dark">
-<meta property="og:title" content="Unrestor — Close the lid. Your work keeps running.">
-<meta property="og:description" content="A free, open-source, minimal macOS keep-awake tool for long-running commands.">
+<title>Unrestor — Keep your MacBook awake with the lid closed</title>
+<meta name="description" content="Unrestor is a free, open-source macOS app that keeps your MacBook awake with the lid shut while a command, process, or timer runs, then lets it sleep again.">
+<meta name="keywords" content="macOS keep awake, MacBook lid closed, prevent sleep, caffeinate alternative, pmset disablesleep, long running commands, menu bar app, open source">
+<meta name="author" content="GAM3RG33K">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#f4f1ea">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; font-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+<link rel="canonical" href="__SITE_URL__/">
+
+<meta property="og:site_name" content="Unrestor">
 <meta property="og:type" content="website">
+<meta property="og:url" content="__SITE_URL__/">
+<meta property="og:title" content="Unrestor — Close the lid. Your work keeps running.">
+<meta property="og:description" content="Keep your MacBook awake with the lid closed while a command, process, or timer runs. Free, open source, and tiny.">
+<meta property="og:image" content="__SITE_URL__/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Unrestor: an open eye with a crescent moon for a pupil, and the line Close the lid. Your work keeps running.">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Unrestor — Close the lid. Your work keeps running.">
+<meta name="twitter:description" content="Keep your MacBook awake with the lid closed while a command, process, or timer runs. Free, open source, and tiny.">
+<meta name="twitter:image" content="__SITE_URL__/og-image.png">
+<meta name="twitter:image:alt" content="Unrestor: an open eye with a crescent moon for a pupil.">
+
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="alternate" type="text/plain" href="llms.txt" title="llms.txt">
+<link rel="preload" href="fonts/PlusJakartaSans-latin.woff2" as="font" type="font/woff2" crossorigin>
+
+<script>document.documentElement.classList.add('js')</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "__SITE_URL__/#website",
+      "url": "__SITE_URL__/",
+      "name": "Unrestor",
+      "description": "Keep your MacBook awake with the lid closed while work runs.",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "__SITE_URL__/#app",
+      "name": "Unrestor",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "macOS 14 or later",
+      "description": "A free, open-source macOS menu-bar app and command-line tool that keeps a MacBook awake with the lid closed while a command, process, or timer runs, then lets it sleep again. Safety limits for battery and heat always win.",
+      "url": "__SITE_URL__/",
+      "image": "__SITE_URL__/og-image.png",
+      "downloadUrl": "https://github.com/GAM3RG33K/unrestor/releases/latest",
+      "installUrl": "https://github.com/GAM3RG33K/homebrew-tap",
+      "license": "https://www.apache.org/licenses/LICENSE-2.0",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "codeRepository": "https://github.com/GAM3RG33K/unrestor",
+      "programmingLanguage": "Swift",
+      "author": { "@type": "Person", "name": "GAM3RG33K", "url": "https://github.com/GAM3RG33K" },
+      "featureList": [
+        "Keeps a MacBook awake with the lid closed, on battery or on power",
+        "Holds end automatically when the command, process, or timer ends",
+        "Battery floor, heat limit, and power-only mode enforced by the background service",
+        "Menu-bar switch with timers from 30 minutes to 8 hours and a live countdown",
+        "No account, no analytics, no tracking"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Does it work with the lid closed and no charger?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. A hold keeps the Mac awake on battery or on power. A battery floor you choose, never below 10 percent, lets the Mac sleep again before the battery runs flat." } },
+        { "@type": "Question", "name": "What happens if my terminal closes or my Mac crashes mid-hold?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The hold ends. A background service releases it when the connection closes, when it stops being renewed for ten seconds, or at the next launch after a crash or reboot, and it puts your original sleep setting back." } },
+        { "@type": "Question", "name": "What does the background service do, and is it safe?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It runs as root, accepts three text commands (HELLO, HOLD, RELEASE) on a private socket that only the installing user can reach, and changes one system setting with fixed pmset arguments. It cannot run your commands or read your files." } },
+        { "@type": "Question", "name": "Is Unrestor notarized by Apple?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Notarization needs a paid developer account. Releases are ad-hoc signed and built in the open by GitHub Actions. The Homebrew cask clears the download warning for you." } },
+        { "@type": "Question", "name": "Does it track me?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. There is no account, no analytics, and no telemetry. The only network request is an optional once-a-day check of this project's public release page, which you can turn off." } },
+        { "@type": "Question", "name": "Can I contribute?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Unrestor is open source under Apache-2.0 but not open for contributions. Outside pull requests are rejected. Forks are welcome, and issues are welcome with no guarantee of a reply or fix." } },
+        { "@type": "Question", "name": "Which macOS versions are supported?",
+          "acceptedAnswer": { "@type": "Answer", "text": "macOS 14 (Sonoma) or later, on Apple silicon and Intel." } }
+      ]
+    }
+  ]
+}
+</script>
+
 <style>
+@font-face{font-family:"Jakarta";src:url("fonts/PlusJakartaSans-latin.woff2") format("woff2");font-weight:200 800;font-style:normal;font-display:swap}
 :root{
-  --ink:#0a0c13; --ink-2:#10131d; --ink-3:#171b28; --line:#262b3d;
-  --paper:#efe8d8; --muted:#9a9fb3; --amber:#ffb347; --amber-deep:#e8831a; --dusk:#8fb0ff; --ok:#8ee0a4;
-  --serif:"New York","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --bg:#f4f1ea; --card:#ffffff; --ink:#0d0f17; --ink-2:#171b28; --night:#0a0c13; --night-2:#121624;
+  --muted:#6c6f7c; --soft:#aaa79e; --line:rgba(13,15,23,.09);
+  --amber:#ffb347; --amber-2:#ffc66b; --amber-deep:#e8831a; --dusk:#8fb0ff; --ok:#2fa866;
+  --sans:"Jakarta",ui-sans-serif,-apple-system,"Helvetica Neue",Arial,sans-serif;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-  --sans:ui-sans-serif,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1);
 }
 *{box-sizing:border-box;margin:0}
-html{scroll-behavior:smooth}
-body{background:var(--ink);color:var(--paper);font:17px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+html{scroll-behavior:smooth;scroll-padding-top:96px}
+body{background:var(--bg);color:var(--ink);font:400 17px/1.55 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden;text-rendering:optimizeLegibility}
 a{color:inherit}
+img,svg{display:block;max-width:100%}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--amber-deep);outline-offset:3px;border-radius:12px}
 .wrap{width:min(1120px,100% - 40px);margin-inline:auto}
 
-/* Night sky: a lamp glow, scattered stars, film grain. All CSS/SVG, no requests. */
-body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+/* ---------- reveal ---------- */
+.js [data-r]{opacity:0;transform:translateY(22px);transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:calc(var(--d,0) * 90ms)}
+.js [data-r].in{opacity:1;transform:none}
+
+/* ---------- nav ---------- */
+.nav{position:fixed;inset:0 0 auto 0;z-index:50;pointer-events:none}
+.nav::before{content:"";position:absolute;inset:0 0 -22px;background:linear-gradient(rgba(244,241,234,.92),rgba(244,241,234,0));opacity:0;transition:opacity .4s}
+.nav.scrolled::before{opacity:1}
+.nav-in{width:min(1240px,100% - 32px);margin:18px auto 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{pointer-events:auto;display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;letter-spacing:-.02em;font-size:18px}
+.brand img{width:34px;height:34px}
+.pill-nav{pointer-events:auto;display:flex;gap:2px;padding:6px;background:rgba(255,255,255,.78);backdrop-filter:saturate(1.6) blur(14px);-webkit-backdrop-filter:saturate(1.6) blur(14px);border-radius:999px;box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 8px 30px -12px rgba(13,15,23,.18);transition:transform .5s var(--ease),box-shadow .5s}
+.pill-nav a{position:relative;padding:9px 16px;border-radius:999px;font-size:15px;font-weight:500;text-decoration:none;color:#2a2d3a;transition:color .3s,background .3s}
+.pill-nav a:hover{background:rgba(13,15,23,.05)}
+.pill-nav a.on{color:var(--amber-deep);background:rgba(255,179,71,.14)}
+.nav.scrolled .pill-nav{transform:scale(.97);box-shadow:0 12px 40px -14px rgba(13,15,23,.28)}
+.btn{pointer-events:auto;display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:999px;font-weight:600;font-size:15px;text-decoration:none;transition:transform .35s var(--ease),box-shadow .35s,background .3s}
+.btn-dark{background:var(--ink);color:#fff;box-shadow:0 10px 24px -12px rgba(13,15,23,.6)}
+.btn-dark:hover{transform:translateY(-2px);box-shadow:0 16px 30px -12px rgba(13,15,23,.65)}
+.btn-light{background:#fff;color:var(--ink);box-shadow:0 1px 0 rgba(13,15,23,.04),0 8px 22px -14px rgba(13,15,23,.3)}
+.btn-light:hover{transform:translateY(-2px)}
+.btn svg{width:16px;height:16px}
+
+/* ---------- hero ---------- */
+.hero{position:relative;padding:150px 0 28px;text-align:center}
+.hero::before{content:"";position:absolute;inset:0 0 auto 0;height:720px;z-index:-1;pointer-events:none;
+  background:radial-gradient(620px 340px at 50% 8%,rgba(255,179,71,.22),transparent 70%),radial-gradient(520px 300px at 85% 30%,rgba(143,176,255,.14),transparent 70%)}
+.badge{display:inline-flex;align-items:center;gap:9px;padding:9px 16px 9px 12px;background:#fff;border-radius:999px;font-size:14px;font-weight:600;text-decoration:none;box-shadow:0 8px 24px -16px rgba(13,15,23,.35);transition:transform .35s var(--ease)}
+.badge:hover{transform:translateY(-2px)}
+.badge svg{width:18px;height:18px;color:var(--amber-deep)}
+.badge .arr{width:13px;height:13px;color:var(--muted)}
+h1{margin:26px auto 0;max-width:100%;font-size:clamp(40px,7.6vw,84px);line-height:1.02;letter-spacing:-.045em;font-weight:600}
+h1 .l2{color:var(--soft);display:block}
+.w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em;margin-bottom:-.12em}
+.w>span{display:inline-block;transform:translateY(105%);animation:rise 1s var(--ease) forwards;animation-delay:calc(var(--i) * 70ms + 150ms)}
+@keyframes rise{to{transform:none}}
+.lede{margin:26px auto 0;max-width:34em;color:var(--muted);font-size:clamp(17px,2.1vw,20px);line-height:1.6}
+
+/* install bar */
+.install{margin:36px auto 0;max-width:640px;display:flex;align-items:center;gap:8px;padding:8px;background:var(--night);color:#e9e6dc;border-radius:22px;box-shadow:0 30px 60px -30px rgba(13,15,23,.7),0 0 0 1px rgba(255,255,255,.04) inset;text-align:left;position:relative;overflow:hidden}
+.install::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,198,107,.16) 50%,transparent 70%);transform:translateX(-120%);animation:sheen 5.5s 1.4s var(--ease) infinite;pointer-events:none}
+@keyframes sheen{40%,100%{transform:translateX(120%)}}
+.install .tag{flex:none;display:inline-flex;align-items:center;gap:8px;background:#f7f4ec;color:var(--ink);padding:13px 18px;border-radius:15px;font-weight:700;font-size:15px}
+.install .tag svg{width:17px;height:17px}
+.install code{flex:1;min-width:0;padding:0 8px;font:500 15px/1.4 var(--mono);white-space:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.install code::-webkit-scrollbar{display:none}
+.t-cmd{color:var(--amber)}.t-flag{color:var(--dusk)}.t-arg{color:#f2efe6}
+.copy{flex:none;position:relative;width:46px;height:46px;border-radius:14px;color:#c9c6bb;display:grid;place-items:center;transition:background .25s,color .25s,transform .25s var(--ease)}
+.copy:hover{background:rgba(255,255,255,.08);color:#fff}
+.copy:active{transform:scale(.92)}
+.copy svg{position:absolute;width:19px;height:19px;transition:opacity .25s,transform .35s var(--ease)}
+.copy .ok{opacity:0;transform:scale(.4) rotate(-30deg);color:#7be3a4}
+.copy.done .cp{opacity:0;transform:scale(.4)}
+.copy.done .ok{opacity:1;transform:none}
+.after{margin-top:16px;color:var(--muted);font-size:15px}
+.after code,.ans code{font:500 13.5px var(--mono);background:rgba(13,15,23,.06);padding:3px 8px;border-radius:8px;color:var(--ink)}
+.hero-links{margin-top:22px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* ---------- stage (animated product scene) ---------- */
+.stage-wrap{margin-top:64px;perspective:1600px}
+.stage{position:relative;margin-inline:auto;width:min(1120px,100%);border-radius:36px;overflow:hidden;background:var(--night);color:#e9e6dc;box-shadow:0 60px 120px -50px rgba(13,15,23,.75);isolation:isolate}
+.stage::before{content:"";position:absolute;inset:0;z-index:-1;
   background:
-    radial-gradient(900px 600px at 82% -8%,rgba(255,179,71,.20),transparent 60%),
-    radial-gradient(700px 500px at -10% 40%,rgba(143,176,255,.08),transparent 60%),
-    radial-gradient(1.2px 1.2px at 12% 18%,#fff8,transparent),radial-gradient(1px 1px at 28% 64%,#fff6,transparent),
-    radial-gradient(1.4px 1.4px at 46% 12%,#fffa,transparent),radial-gradient(1px 1px at 63% 38%,#fff6,transparent),
-    radial-gradient(1.2px 1.2px at 78% 72%,#fff7,transparent),radial-gradient(1px 1px at 90% 20%,#fff8,transparent),
-    radial-gradient(1px 1px at 8% 82%,#fff5,transparent),radial-gradient(1.3px 1.3px at 54% 88%,#fff6,transparent),
-    var(--ink)}
-body::after{content:"";position:fixed;inset:-50%;z-index:-1;pointer-events:none;opacity:.07;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+    radial-gradient(520px 380px at 82% -6%,rgba(255,179,71,.30),transparent 65%),
+    radial-gradient(520px 420px at 6% 110%,rgba(143,176,255,.14),transparent 65%),
+    radial-gradient(1.2px 1.2px at 11% 21%,#fff9,transparent),radial-gradient(1px 1px at 24% 58%,#fff7,transparent),
+    radial-gradient(1.5px 1.5px at 38% 14%,#fffb,transparent),radial-gradient(1px 1px at 52% 40%,#fff7,transparent),
+    radial-gradient(1.3px 1.3px at 67% 20%,#fff9,transparent),radial-gradient(1px 1px at 79% 66%,#fff7,transparent),
+    radial-gradient(1.2px 1.2px at 91% 34%,#fffa,transparent),radial-gradient(1px 1px at 17% 84%,#fff6,transparent),
+    radial-gradient(1.2px 1.2px at 60% 90%,#fff7,transparent),
+    linear-gradient(180deg,#141a2e,#0a0c13 70%)}
+.menubar{display:flex;align-items:center;justify-content:space-between;padding:10px 22px;background:rgba(255,255,255,.06);backdrop-filter:blur(8px);font-size:13px;font-weight:600;color:#d8d5ca;border-bottom:1px solid rgba(255,255,255,.06)}
+.menubar .l{display:flex;gap:18px;align-items:center}
+.menubar .apple{width:13px;height:13px;border-radius:50%;background:#d8d5ca;opacity:.85}
+.menubar .r{display:flex;gap:16px;align-items:center}
+.mb-glyph{position:relative;width:19px;height:19px;color:#e9e6dc}
+.mb-glyph svg{position:absolute;inset:0;width:19px;height:19px;transition:opacity .45s,transform .6s var(--ease)}
+.mb-glyph .awake{opacity:0;transform:scale(.7)}
+.stage.on .mb-glyph .awake{opacity:1;transform:none;color:var(--amber)}
+.stage.on .mb-glyph .rest{opacity:0;transform:scale(.7)}
+.scene{display:grid;grid-template-columns:1.25fr .9fr;gap:34px;padding:38px 38px 44px;align-items:start}
+.win{background:#0f1320;border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden;box-shadow:0 30px 60px -30px #000}
+.win-bar{display:flex;gap:7px;padding:13px 15px;border-bottom:1px solid rgba(255,255,255,.06)}
+.win-bar i{width:11px;height:11px;border-radius:50%;background:#2b3046}
+.win-bar i:nth-child(1){background:#ff6b63}.win-bar i:nth-child(2){background:#ffc14f}.win-bar i:nth-child(3){background:#3ed16a}
+.term{padding:20px 22px 24px;font:500 14px/1.75 var(--mono);min-height:310px;color:#cfccc1;text-align:left}
+.term .p{color:var(--amber)}
+.term .dim{color:#7e8296}
+.term .good{color:#7be3a4}
+.term .warn{color:var(--amber-2)}
+.term .ln{display:block;animation:ln .5s var(--ease) both}
+@keyframes ln{from{opacity:0;transform:translateY(6px)}}
+.caret{display:inline-block;width:8px;height:1.05em;margin-left:2px;vertical-align:-3px;background:var(--amber);animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.col{display:flex;flex-direction:column;gap:16px}
+.pop{background:rgba(250,248,243,.97);color:var(--ink);border-radius:20px;padding:18px;box-shadow:0 40px 70px -30px #000,0 0 0 1px rgba(255,255,255,.35) inset;text-align:left}
+.pop-head{display:flex;align-items:center;justify-content:space-between}
+.pop-title{font-weight:700;font-size:16px;letter-spacing:-.01em}
+.sw{position:relative;width:44px;height:26px;border-radius:999px;background:#cfcbc0;transition:background .45s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:transform .5s var(--ease)}
+.stage.on .sw{background:var(--amber-deep)}
+.stage.on .sw::after{transform:translateX(18px)}
+.pop-sub{color:var(--muted);font-size:13px}
+.cd{font:700 30px/1.1 var(--mono);letter-spacing:-.04em;color:var(--ink);font-variant-numeric:tabular-nums}
+.cd-wrap{margin-top:10px;display:flex;align-items:baseline;gap:8px;height:34px;overflow:hidden}
+.cd-wrap .off{color:var(--muted);font-size:14px}
+.cd-wrap .live{display:none;align-items:baseline;gap:8px}
+.stage.on .cd-wrap .off{display:none}
+.stage.on .cd-wrap .live{display:flex}
+.chips{display:flex;gap:6px;margin-top:12px}
+.chips b{flex:1;text-align:center;padding:8px 0;border-radius:11px;background:rgba(13,15,23,.06);font-size:13px;font-weight:600}
+.chips b.sel{background:var(--ink);color:#fff}
+.hold{display:flex;align-items:center;gap:9px;padding:0 12px;margin-top:0;border-radius:13px;background:rgba(255,179,71,.16);font-size:13.5px;font-weight:600;opacity:0;max-height:0;overflow:hidden;transition:all .5s var(--ease)}
+.stage.on .hold{opacity:1;max-height:50px;padding-block:11px;margin-top:14px}
+.hold i{font:600 12px var(--mono);color:var(--muted);margin-left:auto;font-style:normal}
+.hold svg{width:15px;height:15px;color:var(--amber-deep)}
+.lims{margin-top:14px;display:grid;gap:9px;font-size:13px;color:#3b3e4c}
+.lims div{display:flex;justify-content:space-between;align-items:center}
+.mini{width:30px;height:18px;border-radius:999px;background:#cfcbc0;position:relative}
+.mini::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff}
+.mini.on{background:var(--amber-deep)}.mini.on::after{left:14px}
+.lims em{font-style:normal;font-weight:600}
+.lid{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:14px;color:#cfccc1;text-align:left}
+.lid svg{width:36px;height:24px;flex:none;color:#cfccc1;overflow:visible}
+.lid .lidtop{transform-box:view-box;transform-origin:18px 17.5px;transition:transform .9s var(--ease)}
+.stage.closed .lid .lidtop{transform:scaleY(.12)}
+.lid b{color:#fff;font-weight:600}
+.lid .msg{position:relative;flex:1;height:22px;overflow:hidden}
+.lid .msg span{position:absolute;left:0;top:0;white-space:nowrap;transition:opacity .5s,transform .6s var(--ease)}
+.lid .m2{opacity:0;transform:translateY(10px)}
+.stage.closed .lid .m1{opacity:0;transform:translateY(-10px)}
+.stage.closed .lid .m2{opacity:1;transform:none}
 
-/* Nav */
-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 0}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:600 20px var(--serif);letter-spacing:.2px}
-.brand svg{width:30px;height:30px}
-.links{display:flex;align-items:center;gap:26px;font-size:15px;color:var(--muted)}
-.links a{text-decoration:none;transition:color .2s}.links a:hover{color:var(--paper)}
-.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--ink-2);padding:7px 14px;border-radius:999px;color:var(--paper)!important;font-size:14px}
-.pill:hover{border-color:var(--amber)}
-.stat[data-n^="__"]{display:none}
-.stat::after{content:attr(data-n)}
-.stat{font-variant-numeric:tabular-nums}
+/* ---------- strip ---------- */
+.strip{margin-top:84px;text-align:center}
+.strip p{color:var(--muted);font-size:15px;font-weight:500}
+.marq{margin-top:22px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.track{display:flex;gap:12px;width:max-content;animation:marq 38s linear infinite}
+.marq:hover .track{animation-play-state:paused}
+.track span{padding:11px 18px;border-radius:999px;background:#fff;font:500 14px var(--mono);color:#3b3e4c;box-shadow:0 8px 20px -16px rgba(13,15,23,.4);white-space:nowrap}
+@keyframes marq{to{transform:translateX(calc(-50% - 6px))}}
 
-/* Hero */
-.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding:56px 0 96px;position:relative}
-.clock{position:absolute;z-index:-1;left:-12px;top:-6px;font:italic 700 clamp(180px,26vw,340px)/1 var(--serif);color:transparent;-webkit-text-stroke:1px rgba(255,179,71,.14);letter-spacing:-.04em;user-select:none}
-.eyebrow{font:500 13px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--amber);display:flex;gap:10px;align-items:center}
-.eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 14px var(--amber);animation:breathe 3.2s ease-in-out infinite}
-h1{font:600 clamp(44px,6.4vw,84px)/1.02 var(--serif);letter-spacing:-.025em;margin:18px 0 22px}
-h1 em{color:var(--amber);font-style:italic;font-weight:500}
-.lede{font-size:20px;color:#c9c6bb;max-width:34em}
-.cta{display:flex;flex-wrap:wrap;gap:12px;margin:34px 0 16px}
-.btn{display:inline-flex;align-items:center;gap:9px;padding:14px 24px;border-radius:12px;font-weight:600;text-decoration:none;border:1px solid var(--line);transition:transform .15s,box-shadow .2s,border-color .2s}
-.btn:hover{transform:translateY(-2px)}
-.btn.primary{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#2a1700;border-color:transparent;box-shadow:0 10px 40px -10px rgba(255,150,40,.6)}
-.btn.primary:hover{box-shadow:0 14px 50px -8px rgba(255,150,40,.8)}
-.btn.ghost{background:var(--ink-2)}.btn.ghost:hover{border-color:var(--amber)}
-.fine{font:13px var(--mono);color:var(--muted)}
+/* ---------- sections ---------- */
+section{position:relative}
+.sec{padding:130px 0 0;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 15px;border-radius:999px;background:#fff;font-size:12.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;box-shadow:0 8px 20px -16px rgba(13,15,23,.4)}
+.eyebrow svg{width:15px;height:15px;color:var(--amber-deep)}
+h2{margin:22px auto 0;max-width:18ch;font-size:clamp(34px,5.6vw,60px);line-height:1.06;letter-spacing:-.04em;font-weight:600}
+h2 .g{color:var(--soft)}
+.sub{margin:18px auto 0;max-width:36em;color:var(--muted);font-size:18px}
 
-/* Terminal */
-.term{background:linear-gradient(180deg,var(--ink-3),var(--ink-2));border:1px solid var(--line);border-radius:16px;box-shadow:0 40px 80px -30px #000,0 0 0 1px rgba(255,255,255,.02) inset,0 0 90px -30px rgba(255,179,71,.35);transform:rotate(1.6deg);overflow:hidden}
-.term-bar{display:flex;align-items:center;gap:7px;padding:12px 14px;border-bottom:1px solid var(--line);font:12px var(--mono);color:var(--muted)}
-.term-bar b{width:11px;height:11px;border-radius:50%;background:#3a3f55}
-.term-bar span{margin-left:auto;margin-right:auto}
-.term pre{font:14px/1.75 var(--mono);padding:20px 22px 24px;white-space:pre-wrap;min-height:290px}
-.p{color:var(--amber)}.d{color:var(--muted)}.g{color:var(--ok)}
-.type{display:inline-block;overflow:hidden;white-space:nowrap;vertical-align:bottom;width:0;border-right:2px solid var(--amber);animation:type 2.2s steps(30) .6s forwards,caret .8s step-end 6}
-.rise{opacity:0;animation:rise .5s ease forwards}
-.l1{animation-delay:3s}.l2{animation-delay:3.6s}.l3{animation-delay:4.4s}.l4{animation-delay:5.4s}.l5{animation-delay:6.4s}
-.status{display:flex;align-items:center;gap:10px;margin-top:14px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,179,71,.07);font:13px var(--mono);color:var(--paper)}
-.status i{width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 12px var(--amber);animation:breathe 2.4s ease-in-out infinite}
+/* steps */
+.steps{margin-top:58px;display:grid;grid-template-columns:repeat(3,1fr);gap:22px;text-align:left}
+.step{min-width:0}
+.step .art{position:relative;height:330px;border-radius:30px;overflow:hidden;background:linear-gradient(180deg,#ffd9a3 0%,#ffb86b 55%,#f39a3c 100%);padding:26px 24px 0;transition:transform .7s var(--ease)}
+.step:hover .art{transform:translateY(-6px)}
+.step .art::after{content:"";position:absolute;inset:0;background:radial-gradient(260px 160px at 85% 0,rgba(255,255,255,.55),transparent 70%);pointer-events:none}
+.panel{overflow:hidden;position:relative;z-index:1;background:#fff;border-radius:18px 18px 0 0;height:100%;padding:18px;box-shadow:0 20px 40px -22px rgba(120,60,0,.55);font-size:13.5px}
+.step h3{margin-top:6px;font-size:21px;letter-spacing:-.02em;font-weight:600}
+.step p{margin-top:8px;color:var(--muted);font-size:16px}
+.step .num{display:block;margin-top:20px;font:700 12px var(--mono);color:var(--amber-deep);letter-spacing:.08em}
+.step p code{font:500 14px var(--mono)}
+.pcode{font:500 12.5px/1.8 var(--mono);color:#2c2f3b;overflow:hidden;white-space:nowrap}
+.pcode .c{color:#9a9ca8}.pcode .a{color:var(--amber-deep);font-weight:600}.pcode .g{color:var(--ok)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;margin-top:8px;font-weight:500}
+.row:first-child{margin-top:0}
+.row span{color:var(--muted);font-size:12.5px}
+.row.hl{border-color:var(--amber-deep);background:rgba(255,179,71,.1);color:#9a5410}
+.row.hl span{color:#b8691a}
+.dotok{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:8px;box-shadow:0 0 0 4px rgba(47,168,102,.18)}
 
-/* Sections */
-section{padding:84px 0;border-top:1px solid var(--line)}
-.kicker{font:500 13px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:14px}
-h2{font:600 clamp(32px,4.4vw,52px)/1.08 var(--serif);letter-spacing:-.02em;max-width:18em}
-.sub{color:var(--muted);font-size:19px;margin-top:14px;max-width:36em}
+/* script card */
+.script{margin:54px auto 0;max-width:760px;background:var(--night);border-radius:26px;text-align:left;overflow:hidden;box-shadow:0 40px 80px -40px rgba(13,15,23,.7)}
+.script-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 10px 8px 22px;border-bottom:1px solid rgba(255,255,255,.07);color:#9a9db0;font-size:13px;font-weight:600}
+.script pre{padding:20px 22px 24px;font:500 14.5px/1.95 var(--mono);color:#e9e6dc;overflow-x:auto;white-space:pre}
+.script .cm{color:#6e728a}
+.script .cmd{color:var(--amber)}
 
-/* Night timeline */
-.night{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:56px;position:relative}
-.night::before{content:"";position:absolute;left:0;right:0;top:31px;height:1px;background:linear-gradient(90deg,var(--amber),rgba(255,179,71,.15))}
-.step{padding-right:32px;position:relative}
-.step .t{font:700 28px var(--serif);color:var(--paper);background:var(--ink);display:inline-block;padding-right:14px;position:relative}
-.step .t small{font:500 13px var(--mono);color:var(--amber);margin-left:4px}
-.step h3{font:600 22px var(--serif);margin:26px 0 8px}
-.step p{color:var(--muted);font-size:16px}
-.step .dot{position:absolute;left:0;top:25px;width:13px;height:13px;border-radius:50%;background:var(--amber);box-shadow:0 0 18px var(--amber)}
-.step:last-child .dot{background:var(--dusk);box-shadow:0 0 18px var(--dusk)}
-.step .t{margin-left:24px}
+/* bento */
+.bento{margin-top:58px;display:grid;grid-template-columns:repeat(6,1fr);gap:20px;text-align:left}
+.tile{position:relative;background:#fff;border-radius:30px;padding:30px;overflow:hidden;box-shadow:0 1px 0 rgba(13,15,23,.03),0 24px 50px -40px rgba(13,15,23,.5);transition:transform .6s var(--ease),box-shadow .6s,opacity .9s var(--ease)}
+.tile:hover{transform:translateY(-5px);box-shadow:0 30px 60px -36px rgba(13,15,23,.55)}
+.tile h3{font-size:22px;letter-spacing:-.025em;font-weight:600;line-height:1.2}
+.tile p{margin-top:9px;color:var(--muted);font-size:16px;max-width:30em}
+.t3{grid-column:span 3}.t2{grid-column:span 2}.t4{grid-column:span 4}
+.tile .vis{margin-top:26px}
+.tile.dark{background:var(--night);color:#e9e6dc}
+.tile.dark p{color:#9a9db0}
+.tile.warm{background:linear-gradient(160deg,#fff4df,#ffe3b8)}
+.tile.warm p{color:#7b5a2c}
 
-/* Commands */
-.cmds{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:48px}
-.card{background:linear-gradient(180deg,var(--ink-3),var(--ink-2));border:1px solid var(--line);border-radius:16px;padding:26px;transition:border-color .2s,transform .2s}
-.card:hover{border-color:rgba(255,179,71,.5);transform:translateY(-3px)}
-.card code{display:block;font:14.5px/1.6 var(--mono);background:#07090e;border:1px solid var(--line);padding:12px 14px;border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--paper)}
-.card code .p{user-select:none}
-.card h3{font:600 20px var(--serif);margin:16px 0 6px}
-.card p{color:var(--muted);font-size:15.5px}
+.life{position:relative;height:74px}
+.life .line{position:absolute;left:0;right:0;top:34px;height:4px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden}
+.life .line::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--amber),var(--amber-deep));transform:scaleX(0);transform-origin:left;animation:fill 7s var(--ease) infinite}
+@keyframes fill{0%,10%{transform:scaleX(0)}55%,85%{transform:scaleX(1)}100%{transform:scaleX(1);opacity:0}}
+.life b{position:absolute;top:0;font-size:12.5px;font-weight:600;color:#cfccc1;white-space:nowrap}
+.life b::after{content:"";position:absolute;top:26px;width:12px;height:12px;border-radius:50%;background:var(--night);border:3px solid var(--amber)}
+.life b:nth-child(1){left:0}.life b:nth-child(1)::after{left:0}
+.life b:nth-child(2){left:50%;transform:translateX(-50%)}.life b:nth-child(2)::after{left:50%;transform:translateX(-50%)}
+.life b:nth-child(3){right:0}.life b:nth-child(3)::after{right:0}
 
-/* Let go */
-.letgo{display:grid;grid-template-columns:1fr 1.25fr;gap:64px;align-items:start}
-.facts{display:grid;gap:0}
-.fact{display:grid;grid-template-columns:64px 1fr;gap:16px;padding:22px 0;border-bottom:1px solid var(--line)}
-.fact:first-child{padding-top:0}
-.fact b{font:italic 600 40px/1 var(--serif);color:var(--amber)}
-.fact h3{font:600 20px var(--serif);margin-bottom:4px}
-.fact p{color:var(--muted);font-size:16px}
+.tile .bat{position:relative;height:34px;border-radius:12px;background:#f1eee7;margin-top:52px}
+.bat i{position:absolute;inset:0;border-radius:12px;background:linear-gradient(90deg,var(--amber-2),var(--amber-deep));transform-origin:left;animation:drain 7s var(--ease) infinite}
+@keyframes drain{0%,12%{transform:scaleX(.96)}60%,82%{transform:scaleX(.16)}100%{transform:scaleX(.96)}}
+.bat u{position:absolute;left:20%;top:-4px;bottom:-4px;width:2px;background:var(--ink);text-decoration:none}
+.bat u::after{content:"sleeps again below the floor";position:absolute;top:-24px;left:0;font:600 11px var(--mono);color:var(--ink);white-space:nowrap}
 
-/* Compare */
-.table{margin-top:44px;border:1px solid var(--line);border-radius:16px;overflow:hidden;font-size:15.5px}
-.row{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr}
-.row>div{padding:15px 20px;border-bottom:1px solid var(--line)}
-.row:last-child>div{border-bottom:0}
-.row.head>div{font:500 13px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--ink-2)}
-.row .us{background:rgba(255,179,71,.07);color:var(--paper)}
-.row.head .us{color:var(--amber);background:rgba(255,179,71,.12)}
-.yes{color:var(--ok)}.no{color:#e58a8a}.meh{color:var(--muted)}
+.tchips{display:flex;gap:7px;flex-wrap:wrap}
+.tchips b{padding:9px 16px;border-radius:12px;background:rgba(13,15,23,.06);font-size:14px;font-weight:600}
+.tchips b.sel{background:var(--ink);color:#fff}
+.bigcd{margin-top:16px;font:700 44px/1 var(--mono);letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+.bigcd small{font:500 14px var(--sans);letter-spacing:0;color:var(--muted);margin-left:8px}
 
-/* Install */
-.install{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
-.step2{margin-top:18px;border-color:rgba(255,179,71,.4)}
-.install h3{font:600 20px var(--serif);margin-bottom:10px}
-.install p{color:var(--muted);font-size:15.5px;margin-top:12px}
-.note{margin-top:22px;padding:14px 18px;border:1px dashed rgba(255,179,71,.5);border-radius:12px;color:#e8d9bd;font-size:15px;background:rgba(255,179,71,.05)}
+.checks{display:grid;gap:11px}
+.checks div{display:flex;align-items:center;gap:12px;font-weight:600;font-size:15.5px}
+.checks svg{width:20px;height:20px;color:var(--ok);flex:none}
 
-/* Closing */
-.closing{text-align:center;padding:110px 0}
-.closing h2{margin-inline:auto}
-.closing .cta{justify-content:center}
-.closing .eye{width:96px;margin:0 auto 26px;filter:drop-shadow(0 0 26px rgba(255,179,71,.6))}
-.eye .lid{transform-origin:50% 50%;animation:blink 6s ease-in-out infinite}
+.upd{display:flex;align-items:center;gap:14px;padding:16px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
+.upd .ic{width:42px;height:42px;border-radius:12px;background:linear-gradient(160deg,var(--amber),var(--amber-deep));display:grid;place-items:center;color:#2a1700;flex:none}
+.upd .ic svg{width:22px;height:22px}
+.upd b{display:block;font-size:15px;color:#fff}.upd span{font-size:13px;color:#9a9db0}
+.upd .go{margin-left:auto;padding:9px 14px;border-radius:999px;background:#f7f4ec;color:var(--ink);font-weight:700;font-size:13px;white-space:nowrap}
 
-footer{border-top:1px solid var(--line);padding:46px 0 60px;color:var(--muted);font-size:15px}
-.fgrid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px}
-footer h4{font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--paper);margin-bottom:12px}
-footer a{display:block;text-decoration:none;padding:3px 0}footer a:hover{color:var(--amber)}
-.stats{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font:13px var(--mono)}
-.stats span.stat+span{margin-left:-12px}
-.legal{margin-top:36px;padding-top:22px;border-top:1px solid var(--line);font:13px/1.7 var(--mono);display:flex;gap:14px 28px;flex-wrap:wrap;justify-content:space-between}
-.privacy{color:var(--ok)}
+.proto{font:500 13.5px/1.9 var(--mono);color:#cfccc1}
+.proto .k{color:var(--amber)}.proto .v{color:var(--dusk)}
 
-@keyframes type{to{width:31ch}}
-@keyframes caret{50%{border-color:transparent}}
-@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@keyframes breathe{50%{opacity:.35}}
-@keyframes blink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
-.reveal{opacity:0;transform:translateY(16px);animation:rise .8s ease forwards}
-.reveal:nth-child(2){animation-delay:.12s}.reveal:nth-child(3){animation-delay:.24s}
+/* safety */
+.safety{margin-top:130px}
+.safe-card{background:var(--night);color:#e9e6dc;border-radius:40px;padding:64px 56px;display:grid;grid-template-columns:1.1fr .9fr;gap:52px;align-items:center;position:relative;overflow:hidden;box-shadow:0 60px 110px -50px rgba(13,15,23,.8)}
+.safe-card::before{content:"";position:absolute;inset:0;background:radial-gradient(480px 340px at 100% 0,rgba(255,179,71,.22),transparent 65%),radial-gradient(400px 300px at 0 100%,rgba(143,176,255,.12),transparent 65%);pointer-events:none}
+.safe-card>*{position:relative}
+.safe-card h2{margin:18px 0 0;max-width:13ch;text-align:left;color:#fff}
+.safe-card .sub{margin:18px 0 0;color:#a6a9ba;text-align:left}
+.safe-card .eyebrow{background:rgba(255,255,255,.08);color:#e9e6dc;box-shadow:none}
+.facts{display:grid;gap:14px}
+.fact{display:flex;gap:16px;padding:18px 20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:20px;transition:transform .5s var(--ease),background .4s}
+.fact:hover{transform:translateX(6px);background:rgba(255,255,255,.08)}
+.fact svg{width:22px;height:22px;color:var(--amber);flex:none;margin-top:2px}
+.fact b{display:block;color:#fff;font-weight:600;font-size:16px}
+.fact span{color:#9a9db0;font-size:14.5px}
+.safe-links{margin-top:28px;display:flex;gap:10px;flex-wrap:wrap}
+.btn-ghost{background:rgba(255,255,255,.08);color:#fff}
+.btn-ghost:hover{background:rgba(255,255,255,.14);transform:translateY(-2px)}
 
-@media (max-width:900px){
-  .links a:not(.pill){display:none}
-  .hero,.letgo{grid-template-columns:1fr;gap:44px}
-  .term{transform:none}
-  .night{grid-template-columns:1fr;gap:34px}.night::before{display:none}
-  .step .dot{display:none}.step .t{margin-left:0}
-  .cmds,.install{grid-template-columns:1fr}
-  .row{grid-template-columns:1.2fr 1fr 1fr 1fr;font-size:14px}.row>div{padding:12px 10px}
-  .fgrid{grid-template-columns:1fr 1fr}
+/* open source */
+.os{margin-top:130px;text-align:center}
+.os-grid{margin-top:52px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:left}
+.os-grid .tile h3{display:flex;align-items:center;gap:12px}
+.os-ic{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;flex:none}
+.os-ic svg{width:21px;height:21px}
+.os-ic.ok{background:rgba(47,168,102,.13);color:var(--ok)}
+.os-ic.no{background:rgba(220,70,60,.12);color:#d4443a}
+.os-ic.is{background:rgba(255,179,71,.2);color:var(--amber-deep)}
+.os-actions{margin-top:34px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* faq */
+.faq{margin-top:130px}
+.faq-list{margin:52px auto 0;max-width:820px;text-align:left;display:grid;gap:12px}
+details{background:#fff;border-radius:22px;box-shadow:0 20px 44px -38px rgba(13,15,23,.5);transition:box-shadow .4s}
+details[open]{box-shadow:0 28px 54px -34px rgba(13,15,23,.5)}
+summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 26px;font-weight:600;font-size:18px;letter-spacing:-.015em}
+summary::-webkit-details-marker{display:none}
+summary .pm{flex:none;position:relative;width:30px;height:30px;border-radius:50%;background:rgba(13,15,23,.06);transition:background .3s,transform .5s var(--ease)}
+summary .pm::before,summary .pm::after{content:"";position:absolute;left:50%;top:50%;width:11px;height:2px;border-radius:2px;background:var(--ink);transform:translate(-50%,-50%);transition:transform .5s var(--ease)}
+summary .pm::after{transform:translate(-50%,-50%) rotate(90deg)}
+details[open] summary .pm{background:var(--amber);transform:rotate(180deg)}
+details[open] summary .pm::after{transform:translate(-50%,-50%) rotate(0)}
+.ans{padding:0 26px 24px;color:var(--muted);font-size:16.5px;animation:open .6s var(--ease)}
+.ans a{color:var(--amber-deep);text-underline-offset:3px}
+@keyframes open{from{opacity:0;transform:translateY(-8px)}}
+
+/* final cta */
+.cta{margin-top:130px}
+.cta-card{position:relative;background:linear-gradient(180deg,#ffd9a3 0%,#ffb86b 55%,#f39a3c 100%);border-radius:44px;padding:76px 28px 70px;text-align:center;overflow:hidden}
+.cta-card::before{content:"";position:absolute;inset:0;background:radial-gradient(520px 300px at 50% -10%,rgba(255,255,255,.65),transparent 70%),radial-gradient(1.4px 1.4px at 14% 24%,#fff8,transparent),radial-gradient(1.4px 1.4px at 86% 30%,#fff8,transparent),radial-gradient(1.4px 1.4px at 70% 80%,#fff6,transparent),radial-gradient(1.4px 1.4px at 28% 76%,#fff6,transparent)}
+.cta-card>*{position:relative}
+.cta-card img{width:84px;height:84px;margin:0 auto;border-radius:22px;box-shadow:0 24px 40px -18px rgba(120,60,0,.7);animation:float 6s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-8px)}}
+.cta-card h2{color:#2a1700;max-width:14ch;margin-top:26px}
+.cta-card h2 .g{color:rgba(42,23,0,.45)}
+
+footer{padding:90px 0 54px;color:var(--muted);font-size:14.5px}
+.foot{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:36px}
+.foot .brand{font-size:17px;color:var(--ink)}
+.foot p{margin-top:14px;max-width:26em;line-height:1.6}
+.foot h4{color:var(--ink);font-size:14px;margin-bottom:14px;font-weight:700}
+.foot a:not(.brand){display:block;padding:5px 0;text-decoration:none;transition:color .25s}
+.foot a:not(.brand):hover{color:var(--amber-deep)}
+.legal{margin-top:54px;padding-top:26px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:13.5px}
+.legal a{text-decoration:underline;text-underline-offset:3px}
+
+/* scroll-driven stage entrance (progressive enhancement) */
+@supports (animation-timeline:view()){
+  .stage{animation:stagein linear both;animation-timeline:view();animation-range:entry 0% entry 70%}
+  @keyframes stagein{from{transform:translateY(60px) rotateX(7deg) scale(.94);opacity:.4}to{transform:none;opacity:1}}
+}
+
+/* ---------- responsive ---------- */
+@media (max-width:980px){
+  .pill-nav a:nth-child(n+4){display:none}
+  .scene{grid-template-columns:minmax(0,1fr);padding:26px 22px 30px}
+  .steps{grid-template-columns:minmax(0,1fr)}
+  .step .art{height:300px}
+  .bento{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .t3,.t2,.t4{grid-column:span 2}
+  .safe-card{grid-template-columns:minmax(0,1fr);padding:44px 28px}
+  .os-grid{grid-template-columns:minmax(0,1fr)}
+  .foot{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:640px){
+  .pill-nav{display:none}
+  .hero{padding-top:120px}
+  .install{flex-wrap:wrap;border-radius:20px}
+  .install .tag{flex:1 0 100%;justify-content:center}
+  .install code{padding:6px 8px;font-size:12px}
+  .sec{padding-top:96px}
+  .safety,.os,.faq,.cta{margin-top:96px}
+  .tile{padding:24px}
+  .bento{grid-template-columns:minmax(0,1fr)}
+  .t3,.t2,.t4{grid-column:span 1}
+  .foot{grid-template-columns:minmax(0,1fr)}
+  .cd{font-size:26px}
+  .cta-card{border-radius:32px;padding:56px 18px}
+  .upd{flex-wrap:wrap}
+  .upd .go{margin-left:0}
 }
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none!important;transition:none!important}
-  .type{width:31ch;border:0}.rise,.reveal{opacity:1;transform:none}
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  .js [data-r]{opacity:1;transform:none}
+  .w>span{transform:none}
 }
 </style>
 </head>
-<body>
-<div class="wrap">
-  <nav aria-label="Main">
-    <a class="brand" href="#top" id="top">
-      <svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="gn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc66b"/><stop offset="1" stop-color="#e8831a"/></linearGradient></defs><path d="M4 32C12 19 22 12 32 12C42 12 52 19 60 32C52 45 42 52 32 52C22 52 12 45 4 32Z" fill="none" stroke="url(#gn)" stroke-width="5.5" stroke-linejoin="round"/><path d="M44.46 36.28A13.5 13.5 0 1 1 32.53 19.04A10.5 10.5 0 1 0 44.46 36.28Z" fill="url(#gn)"/></svg>
-      Unrestor
-    </a>
-    <div class="links">
-      <a href="#night">How it works</a>
-      <a href="#commands">Commands</a>
+<body id="top">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-eye" viewBox="0 0 64 64"><path d="M4 32C12 19 22 12 32 12C42 12 52 19 60 32C52 45 42 52 32 52C22 52 12 45 4 32Z" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M44.46 36.28A13.5 13.5 0 1 1 32.53 19.04A10.5 10.5 0 1 0 44.46 36.28Z" fill="currentColor"/></symbol>
+  <symbol id="i-rest" viewBox="0 0 64 64"><path d="M6 27C18 41 46 41 58 27" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M17 37L13.5 43.5M32 40.5V48M47 37L50.5 43.5" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 15V7a3 3 0 0 1 3-3h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 16 16"><path d="M4.5 11.5 11.5 4.5M5.5 4.5h6v6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-mug" viewBox="0 0 24 24"><path d="M5 9h11v6a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5V9Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16M8 3.5c0 1.2 1 1.3 1 2.5M12 3.5c0 1.2 1 1.3 1 2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-term" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m7.5 10 3 2.5-3 2.5M12.5 15.5h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.2 5 6v5.6c0 4.3 2.8 7.5 7 9.2 4.2-1.7 7-4.9 7-9.2V6l-7-2.8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m8.8 12.2 2.2 2.2 4.2-4.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 19.5c.8-3.6 3.6-5.2 7-5.2s6.2 1.6 7 5.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5.5 13.2h5.2L10 21l8-10.4h-5.4L13 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.2-4.2M12 15l4.2-4.2M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-fork" viewBox="0 0 24 24"><circle cx="6.5" cy="5.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.5" cy="5.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="19" r="2.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6.5 8v1.5a2.5 2.5 0 0 0 2.5 2.5h6a2.5 2.5 0 0 0 2.5-2.5V8M12 12v4.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="m6.5 6.5 11 11m0-11-11 11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-issue" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.8v5M12 16.2v.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="m12 3.5 7.5 4v9L12 20.5l-7.5-4v-9l7.5-4Zm0 8.5 7.2-3.9M12 12v8.2M12 12 4.8 8.1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="brand" href="#top" aria-label="Unrestor home"><img src="mark.svg" alt="" width="34" height="34">Unrestor</a>
+    <nav class="pill-nav" aria-label="Sections">
+      <a href="#top" class="on">Home</a>
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
       <a href="#safety">Safety</a>
-      <a href="#install">Install</a>
-      <a class="pill" href="https://github.com/GAM3RG33K/unrestor">★ <span class="stat" data-n="__STARS__"></span> GitHub</a>
-    </div>
-  </nav>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a class="btn btn-dark" href="https://github.com/GAM3RG33K/unrestor" rel="noopener">View on GitHub <svg><use href="#i-arrow"/></svg></a>
+  </div>
+</header>
 
-  <header class="hero">
-    <div class="clock" aria-hidden="true">3:07</div>
-    <div>
-      <p class="eyebrow"><i></i> Free · Open source · macOS 14+</p>
-      <h1>Close the lid. Your work <em>keeps running.</em></h1>
-      <p class="lede">Unrestor is a minimal macOS keep-awake tool for long-running commands. Start a build, a test run, or an AI agent, shut the MacBook, and walk away. When the work ends, your Mac goes to sleep.</p>
-      <div class="cta">
-        <a class="btn primary" href="https://github.com/GAM3RG33K/unrestor/releases/latest">Download for Mac</a>
-        <a class="btn ghost" href="https://github.com/GAM3RG33K/unrestor">★ Star on GitHub</a>
+<main>
+<section class="hero">
+  <div class="wrap">
+    <a class="badge" href="https://github.com/GAM3RG33K/unrestor" rel="noopener" data-r>
+      <svg><use href="#i-eye"/></svg>Free and open source, for macOS 14+<svg class="arr"><use href="#i-arrow"/></svg>
+    </a>
+    <h1 aria-label="Close the lid. Your work keeps running.">
+      <span class="l1" aria-hidden="true"><span class="w" style="--i:0"><span>Close</span></span> <span class="w" style="--i:1"><span>the</span></span> <span class="w" style="--i:2"><span>lid.</span></span></span>
+      <span class="l2" aria-hidden="true"><span class="w" style="--i:3"><span>Your</span></span> <span class="w" style="--i:4"><span>work</span></span> <span class="w" style="--i:5"><span>keeps</span></span> <span class="w" style="--i:6"><span>running.</span></span></span>
+    </h1>
+    <p class="lede" data-r style="--d:3">Unrestor keeps your MacBook awake with the lid shut for exactly as long as a command, a process, or a timer needs it. Then it lets go, and your Mac sleeps again.</p>
+
+    <div class="install" data-r style="--d:4" id="install">
+      <span class="tag"><svg><use href="#i-mug"/></svg>Homebrew</span>
+      <code id="brewcmd"><span class="t-cmd">brew</span> <span class="t-arg">install</span> <span class="t-flag">--cask</span> <span class="t-arg">GAM3RG33K/tap/unrestor</span></code>
+      <button class="copy" type="button" data-copy="brew install --cask GAM3RG33K/tap/unrestor" aria-label="Copy the install command">
+        <svg class="cp"><use href="#i-copy"/></svg><svg class="ok"><use href="#i-check"/></svg>
+      </button>
+    </div>
+    <p class="after" data-r style="--d:5">Then run <code>sudo unrestor install</code> once, and <code>unrestor run -- your-command</code> any time.</p>
+    <div class="hero-links" data-r style="--d:6">
+      <a class="btn btn-dark" href="#how">See how it works</a>
+      <a class="btn btn-light" href="https://github.com/GAM3RG33K/unrestor#readme" rel="noopener">Read the docs</a>
+    </div>
+
+    <div class="stage-wrap">
+      <div class="stage on closed" id="stage" role="img" aria-label="An animated example: running a build with Unrestor, closing the lid, and the build finishing">
+        <div class="menubar" aria-hidden="true">
+          <div class="l"><span class="apple"></span><span>Terminal</span><span style="opacity:.55">File</span><span style="opacity:.55">Edit</span></div>
+          <div class="r">
+            <span class="mb-glyph"><svg class="rest"><use href="#i-rest"/></svg><svg class="awake"><use href="#i-eye"/></svg></span>
+            <span style="opacity:.7">Tue 9:41 PM</span>
+          </div>
+        </div>
+        <div class="scene" aria-hidden="true">
+          <div class="win">
+            <div class="win-bar"><i></i><i></i><i></i></div>
+            <div class="term" id="term">
+              <span class="ln"><span class="p">~/app</span> <span class="dim">%</span> unrestor run --for 2h -- npm run build</span>
+              <span class="ln good">holding the Mac awake</span>
+              <span class="ln dim">&gt; compiling 214 modules</span>
+              <span class="ln dim">&gt; optimizing assets</span>
+              <span class="ln warn">lid closed. still running.</span>
+            </div>
+          </div>
+          <div class="col">
+            <div class="pop">
+              <div class="pop-head"><span class="pop-title">Unrestor</span><span class="sw"></span></div>
+              <div class="cd-wrap"><span class="off">Off</span><span class="live"><span class="cd" id="cd">1:58:12</span><span class="pop-sub">left</span></span></div>
+              <div class="chips"><b>30m</b><b>1h</b><b class="sel">2h</b><b>4h</b><b>8h</b></div>
+              <div class="hold"><svg><use href="#i-term"/></svg>npm run build<i>pid 4821</i></div>
+              <div class="lims">
+                <div>Only while connected to power <span class="mini"></span></div>
+                <div>Low Power Mode while awake <span class="mini on"></span></div>
+                <div>Let Mac sleep below <em>20%</em></div>
+              </div>
+            </div>
+            <div class="lid">
+              <svg viewBox="0 0 36 24"><g class="lidtop"><rect x="6" y="2" width="24" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></g><path d="M2 20h32" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+              <div class="msg"><span class="m1">Lid open</span><span class="m2"><b>Lid closed.</b> Work continues.</span></div>
+            </div>
+          </div>
+        </div>
       </div>
-      <p class="fine">Free · Apache-2.0 · works on battery · no tracking · not notarized, see Install</p>
     </div>
 
-    <div class="term" role="img" aria-label="Terminal: unrestor run npm run build keeps the Mac awake, lid closed, until the build finishes, then releases.">
-      <div class="term-bar"><b></b><b></b><b></b><span>~/project — zsh</span></div>
-<pre><span class="p">$</span> <span class="type">unrestor run -- npm run build</span>
-<span class="rise l1 d">▸ hold requested · lid-closed · battery 83%</span>
-<span class="rise l2">building… 1,204 modules</span>
-<span class="rise l3 d">  (you close the lid. it keeps going.)</span>
-<span class="rise l4 g">✓ build finished in 41m</span>
-<span class="rise l5 d">▸ hold released · Mac can sleep</span>
-<div class="status rise l2"><i></i> Awake · lid closed · releases when the build ends</div></pre>
-    </div>
-  </header>
-
-  <section id="night">
-    <p class="kicker">How it works</p>
-    <h2>One long night. Three moments.</h2>
-    <p class="sub">Unrestor holds your Mac awake only while something is asking for it, then lets go on its own.</p>
-    <div class="night">
-      <div class="step reveal"><span class="dot"></span><div class="t">11:42<small>PM</small></div><h3>Start it</h3><p>Run your command through <code>unrestor run</code>, or flip the switch in the menu bar. That is a request to stay awake, nothing more.</p></div>
-      <div class="step reveal"><span class="dot"></span><div class="t">12:00<small>AM</small></div><h3>Close the lid</h3><p>A small background service stops the Mac from sleeping, with or without a charger. The process keeps running.</p></div>
-      <div class="step reveal"><span class="dot"></span><div class="t">3:07<small>AM</small></div><h3>It lets go</h3><p>The command exits, the hold is released, and your Mac sleeps. A low battery or a hot Mac ends it sooner.</p></div>
-    </div>
-  </section>
-
-  <section id="commands">
-    <p class="kicker">Commands</p>
-    <h2>Any tool you can start from a terminal.</h2>
-    <p class="sub">Everything works without the menu-bar app. Each command stays in the foreground until it is done.</p>
-    <div class="cmds">
-      <div class="card"><code><span class="p">$</span> unrestor run -- npm test</code><h3>Run</h3><p>Awake exactly as long as the command runs. Its exit code passes through.</p></div>
-      <div class="card"><code><span class="p">$</span> unrestor run --for 2h -- claude</code><h3>Cap it</h3><p>Add a time limit so a stuck job cannot keep the Mac up all night.</p></div>
-      <div class="card"><code><span class="p">$</span> unrestor watch 4821</code><h3>Watch a process</h3><p>Already running something? Hold the Mac awake until that process ends.</p></div>
-      <div class="card"><code><span class="p">$</span> unrestor hold --for 90m</code><h3>Plain keep-awake</h3><p>No command needed: stay awake until the timer ends or you press Ctrl-C. The menu bar has the same switch.</p></div>
-    </div>
-  </section>
-
-  <section id="safety">
-    <div class="letgo">
-      <div>
-        <p class="kicker">Safety</p>
-        <h2>Built to let go.</h2>
-        <p class="sub">Keeping a laptop awake with the lid shut is a bad idea if it never stops. Unrestor makes stopping the default. <a href="https://github.com/GAM3RG33K/unrestor/blob/main/SECURITY.md" style="color:var(--amber)">Read exactly what the service can do.</a></p>
+    <div class="strip" data-r>
+      <p>Wraps whatever you already run</p>
+      <div class="marq" aria-hidden="true">
+        <div class="track">
+          <span>npm run build</span><span>pytest -x</span><span>cargo build --release</span><span>xcodebuild archive</span><span>claude</span><span>docker compose up</span><span>ffmpeg -i in.mov out.mp4</span><span>make -j8</span><span>python train.py</span><span>./deploy.sh</span>
+          <span>npm run build</span><span>pytest -x</span><span>cargo build --release</span><span>xcodebuild archive</span><span>claude</span><span>docker compose up</span><span>ffmpeg -i in.mov out.mp4</span><span>make -j8</span><span>python train.py</span><span>./deploy.sh</span>
+        </div>
       </div>
-      <div class="facts">
-        <div class="fact"><b>01</b><div><h3>Released on every exit</h3><p>A hold belongs to the process, timer, or switch that asked. Quit the app, crash, or lose the service and it is released.</p></div></div>
-        <div class="fact"><b>02</b><div><h3>Crash-safe restore</h3><p>Your original sleep setting is recorded first and restored at the next launch, even after a reboot.</p></div></div>
-        <div class="fact"><b>03</b><div><h3>Limits always win</h3><p>A battery floor you choose, a heat limit, and a power-only mode override any request.</p></div></div>
-        <div class="fact"><b>04</b><div><h3>A tiny privileged surface</h3><p>The root service runs one fixed system command. It never runs yours, only your own user can talk to it, and it enforces the limits itself, so no program can switch them off.</p></div></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="compare">
-    <p class="kicker">Compared</p>
-    <h2>Why not just <span style="white-space:nowrap">pmset</span>?</h2>
-    <div class="table" role="table" aria-label="Comparison">
-      <div class="row head" role="row"><div>&nbsp;</div><div>pmset by hand</div><div>caffeinate</div><div class="us">Unrestor</div></div>
-      <div class="row" role="row"><div>Lid closed, no charger</div><div class="yes">Yes</div><div class="no">No</div><div class="us yes">Yes</div></div>
-      <div class="row" role="row"><div>Releases when work ends</div><div class="no">You remember</div><div class="yes">Yes</div><div class="us yes">Yes</div></div>
-      <div class="row" role="row"><div>Survives a crash or reboot</div><div class="no">Stays on</div><div class="meh">n/a</div><div class="us yes">Restored</div></div>
-      <div class="row" role="row"><div>Battery and heat limits</div><div class="no">None</div><div class="no">None</div><div class="us yes">Built in</div></div>
-    </div>
-  </section>
-
-  <section id="install">
-    <p class="kicker">Install</p>
-    <h2>Three ways in. One extra step.</h2>
-    <p class="sub">Unrestor is free and not notarized by Apple, which would need a paid account. It is built in the open on GitHub, so you can read the code and the build. macOS asks you to approve it once.</p>
-    <div class="install">
-      <div class="card"><h3>Homebrew</h3><code><span class="p">$</span> brew install --cask GAM3RG33K/tap/unrestor</code><p>Skips the macOS warning and puts <code style="display:inline;padding:1px 6px">unrestor</code> on your PATH.</p></div>
-      <div class="card"><h3>Download the DMG</h3><code><span class="p">→</span> Unrestor.dmg → Applications</code><p>On first open choose <strong>System Settings → Privacy &amp; Security → Open Anyway</strong>.</p></div>
-      <div class="card"><h3>Build from source</h3><code><span class="p">$</span> scripts/make-app.sh</code><p>Needs Xcode's command-line tools. Builds the same app and DMG on your Mac.</p></div>
-    </div>
-    <div class="card step2">
-      <h3>Then, once: install the background service</h3>
-      <code><span class="p">$</span> sudo unrestor install</code>
-      <p>Or open the app and choose <strong>Install Background Service…</strong>; macOS asks for your password. This is what lets the Mac stay awake with the lid closed. Remove it any time with <code style="display:inline;padding:1px 6px">sudo unrestor uninstall</code>.</p>
-    </div>
-    <p class="note"><strong>Stuck?</strong> Run <code style="background:none;border:0;padding:0">unrestor help</code> for the full guide, or <code style="background:none;border:0;padding:0">unrestor status</code> to see why the Mac is or is not staying awake. More in the <a href="https://github.com/GAM3RG33K/unrestor#troubleshooting" style="color:var(--amber)">troubleshooting guide</a>.</p>
-  </section>
-
-  <div class="closing">
-    <svg class="eye" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="gc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc66b"/><stop offset="1" stop-color="#e8831a"/></linearGradient></defs><path d="M4 32C12 19 22 12 32 12C42 12 52 19 60 32C52 45 42 52 32 52C22 52 12 45 4 32Z" fill="none" stroke="url(#gc)" stroke-width="3.2" stroke-linejoin="round"/><g class="lid"><path d="M44.46 36.28A13.5 13.5 0 1 1 32.53 19.04A10.5 10.5 0 1 0 44.46 36.28Z" fill="url(#gc)"/></g></svg>
-    <h2>Go to sleep. Let your Mac stay up.</h2>
-    <p class="sub" style="margin-inline:auto">Free, open source, and gone from your way when the work is done.</p>
-    <div class="cta">
-      <a class="btn primary" href="https://github.com/GAM3RG33K/unrestor/releases/latest">Download for Mac</a>
-      <a class="btn ghost" href="https://github.com/GAM3RG33K/unrestor">★ Star on GitHub</a>
     </div>
   </div>
-</div>
+</section>
+
+<section class="sec" id="how">
+  <div class="wrap">
+    <span class="eyebrow" data-r><svg><use href="#i-box"/></svg>How it works</span>
+    <h2 data-r style="--d:1">Three steps, <span class="g">then walk away.</span></h2>
+    <p class="sub" data-r style="--d:2">No settings to hunt for and nothing to remember to switch off. A hold belongs to the thing that asked for it.</p>
+
+    <div class="steps">
+      <article class="step" data-r style="--d:1">
+        <div class="art"><div class="panel">
+          <div class="pcode"><span class="c"># once</span><br><span class="a">brew</span> install --cask GAM3RG33K/tap/unrestor<br><span class="a">sudo</span> unrestor install<br><br><span class="c"># check</span><br>unrestor status<br><span class="g">Background service: running</span></div>
+        </div></div>
+        <span class="num">STEP 01</span>
+        <h3>Install it once</h3>
+        <p>One Homebrew command, plus a one-time password prompt to set up the small background service.</p>
+      </article>
+      <article class="step" data-r style="--d:2">
+        <div class="art"><div class="panel">
+          <div class="pcode"><span class="a">unrestor</span> run -- npm run build<br><span class="a">unrestor</span> run --for 2h -- claude<br><span class="a">unrestor</span> watch 4821<br><span class="a">unrestor</span> hold --for 90m<br><br><span class="c">or flip the menu-bar switch</span></div>
+        </div></div>
+        <span class="num">STEP 02</span>
+        <h3>Wrap what you run</h3>
+        <p>Put <code>unrestor run --</code> in front of any command, watch a process by id, or hold with a timer.</p>
+      </article>
+      <article class="step" data-r style="--d:3">
+        <div class="art"><div class="panel">
+          <div class="row hl">Sleep blocked <span>yes</span></div>
+          <div class="row">Holding <span>npm run build</span></div>
+          <div class="row">Power <span>battery, 96%</span></div>
+          <div class="row"><span><i class="dotok"></i>Service running</span><span>lid closed</span></div>
+        </div></div>
+        <span class="num">STEP 03</span>
+        <h3>Close the lid</h3>
+        <p>The work keeps going. When it ends, or a limit is hit, your Mac goes back to sleep on its own.</p>
+      </article>
+    </div>
+
+    <div class="script" data-r>
+      <div class="script-bar"><span>Install and launch</span>
+        <button class="copy" type="button" data-copy="brew install --cask GAM3RG33K/tap/unrestor&#10;sudo unrestor install&#10;unrestor run -- npm run build" aria-label="Copy the install and launch script"><svg class="cp"><use href="#i-copy"/></svg><svg class="ok"><use href="#i-check"/></svg></button>
+      </div>
+<pre><span class="cmd">brew</span> install --cask GAM3RG33K/tap/unrestor
+<span class="cmd">sudo</span> unrestor install            <span class="cm"># one time: the background service</span>
+<span class="cmd">unrestor</span> run -- npm run build    <span class="cm"># close the lid and walk away</span></pre>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="features">
+  <div class="wrap">
+    <span class="eyebrow" data-r><svg><use href="#i-bolt"/></svg>Features</span>
+    <h2 data-r style="--d:1">Small on purpose. <span class="g">Careful by design.</span></h2>
+    <p class="sub" data-r style="--d:2">It does one job, keeping the Mac awake while work runs, and spends the rest of its effort making sure it never overstays.</p>
+
+    <div class="bento">
+      <article class="tile dark t4" data-r>
+        <h3>It lets go by itself</h3>
+        <p>A hold lives and dies with the command, process, or timer that asked for it. Quit, crash, or lose the connection and the service releases it and restores your original setting, even after a reboot.</p>
+        <div class="vis life" aria-hidden="true"><b>command starts</b><b>hold renewed every second</b><b>released</b><div class="line"></div></div>
+      </article>
+      <article class="tile warm t2" data-r style="--d:1">
+        <h3>Works on battery</h3>
+        <p>Lid closed, no charger needed. Power-only is there if you want it.</p>
+        <div class="vis checks" style="margin-top:22px">
+          <div><svg><use href="#i-check"/></svg>On battery</div>
+          <div><svg><use href="#i-check"/></svg>On power</div>
+          <div><svg><use href="#i-check"/></svg>Low Power Mode, optional</div>
+        </div>
+      </article>
+
+      <article class="tile t3" data-r>
+        <h3>Limits that always win</h3>
+        <p>Pick a battery floor from 10% to 50%. The service enforces it, along with a heat limit, so nothing running on your Mac can switch them off.</p>
+        <div class="vis bat" aria-hidden="true"><i></i><u></u></div>
+      </article>
+      <article class="tile t3" data-r style="--d:1">
+        <h3>A switch, timers, and a countdown</h3>
+        <p>The menu-bar app keeps a live countdown for timed holds, with one-tap timers from 30 minutes to 8 hours.</p>
+        <div class="vis"><div class="tchips"><b>30m</b><b>1h</b><b class="sel">2h</b><b>4h</b><b>8h</b></div><div class="bigcd" id="bigcd">1:59:42<small>left</small></div></div>
+      </article>
+
+      <article class="tile t2" data-r>
+        <h3>Private by design</h3>
+        <p>Nothing to sign up for and nothing sent anywhere.</p>
+        <div class="vis checks" style="margin-top:22px">
+          <div><svg><use href="#i-check"/></svg>No account</div>
+          <div><svg><use href="#i-check"/></svg>No analytics</div>
+          <div><svg><use href="#i-check"/></svg>No tracking</div>
+        </div>
+      </article>
+      <article class="tile dark t4" data-r style="--d:1">
+        <h3>Updates that respect your install</h3>
+        <p>The app looks for a new release once a day (you can turn that off). Homebrew installs update through Homebrew, so its records stay correct.</p>
+        <div class="vis upd" aria-hidden="true"><span class="ic"><svg><use href="#i-down"/></svg></span><div><b>A new version is ready</b><span>Verified before it installs</span></div><span class="go">Download &amp; Install</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="safety" id="safety">
+  <div class="wrap">
+    <div class="safe-card" data-r>
+      <div>
+        <span class="eyebrow"><svg><use href="#i-shield"/></svg>Safety</span>
+        <h2>Small enough to read in one sitting.</h2>
+        <p class="sub">Keeping a Mac awake lid-closed needs a tiny root service. So we made it tiny, wrote down exactly what it can and can't do, and put all of it in the open.</p>
+        <div class="safe-links">
+          <a class="btn btn-light" href="https://github.com/GAM3RG33K/unrestor/blob/main/SECURITY.md" rel="noopener">What it can do</a>
+          <a class="btn btn-ghost" href="https://github.com/GAM3RG33K/unrestor/blob/main/docs/ARCHITECTURE.md" rel="noopener">How it works</a>
+        </div>
+      </div>
+      <div class="facts">
+        <div class="fact"><svg><use href="#i-term"/></svg><div><b>Three commands, nothing more</b><span class="proto"><span class="k">HELLO</span> <span class="v">1</span> &nbsp;<span class="k">HOLD</span> <span class="v">floor=20</span> &nbsp;<span class="k">RELEASE</span></span></div></div>
+        <div class="fact"><svg><use href="#i-user"/></svg><div><b>Only you can talk to it</b><span>A private socket, locked to the user who installed it.</span></div></div>
+        <div class="fact"><svg><use href="#i-lock"/></svg><div><b>It can't run your code</b><span>One system setting, fixed arguments, no shell.</span></div></div>
+        <div class="fact"><svg><use href="#i-shield"/></svg><div><b>The service owns the limits</b><span>Battery floor, heat, and a ten-second lease are enforced on its side.</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="os" id="open">
+  <div class="wrap">
+    <span class="eyebrow" data-r><svg><use href="#i-fork"/></svg>Open source</span>
+    <h2 data-r style="--d:1">A personal project, <span class="g">shared openly.</span></h2>
+    <p class="sub" data-r style="--d:2">Unrestor is something I built for myself, then opened up. I'm keeping the code and the workflow my own, so it's open to read and fork, not to contributions.</p>
+    <div class="os-grid">
+      <article class="tile" data-r>
+        <h3><span class="os-ic ok"><svg><use href="#i-fork"/></svg></span>Fork it</h3>
+        <p>Apache-2.0. Use it, change it, ship your own version, commercially or not. Give it its own name and icon.</p>
+      </article>
+      <article class="tile" data-r style="--d:1">
+        <h3><span class="os-ic no"><svg><use href="#i-x"/></svg></span>No outside PRs</h3>
+        <p>Pull requests from outside are rejected, however good they are. It's what keeps this repo mine.</p>
+      </article>
+      <article class="tile" data-r style="--d:2">
+        <h3><span class="os-ic is"><svg><use href="#i-issue"/></svg></span>Issues welcome</h3>
+        <p>Bug reports and ideas are read. There's no guarantee of a reply, a fix, or a timeline.</p>
+      </article>
+    </div>
+    <div class="os-actions" data-r>
+      <a class="btn btn-dark" href="https://github.com/GAM3RG33K/unrestor/issues" rel="noopener">Open an issue</a>
+      <a class="btn btn-light" href="https://github.com/GAM3RG33K/unrestor/blob/main/CONTRIBUTING.md" rel="noopener">Read the policy</a>
+    </div>
+  </div>
+</section>
+
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div style="text-align:center">
+      <span class="eyebrow" data-r><svg><use href="#i-issue"/></svg>FAQ</span>
+      <h2 data-r style="--d:1">Questions, <span class="g">answered.</span></h2>
+    </div>
+    <div class="faq-list" data-r>
+      <details><summary>Does it work with the lid closed and no charger?<span class="pm"></span></summary><div class="ans">Yes. A hold keeps the Mac awake on battery or on power. A battery floor you choose, never below 10%, lets the Mac sleep again before the battery runs flat.</div></details>
+      <details><summary>What if my terminal closes or my Mac crashes mid-hold?<span class="pm"></span></summary><div class="ans">The hold ends. The background service releases it when the connection closes, when it stops being renewed for ten seconds, or at the next launch after a crash or reboot, and it puts your original sleep setting back.</div></details>
+      <details><summary>What does the background service do, and is it safe?<span class="pm"></span></summary><div class="ans">It runs as root, accepts three text commands on a private socket that only the installing user can reach, and changes one system setting with fixed arguments. It can't run your commands or read your files. The details are in <a href="https://github.com/GAM3RG33K/unrestor/blob/main/SECURITY.md" rel="noopener">SECURITY.md</a>.</div></details>
+      <details><summary>Is it notarized by Apple?<span class="pm"></span></summary><div class="ans">No. Notarization needs a paid developer account. Releases are ad-hoc signed and built in the open by GitHub Actions, and the Homebrew install clears the download warning for you. You can also build it yourself from source.</div></details>
+      <details><summary>Does it track me?<span class="pm"></span></summary><div class="ans">No. There's no account, no analytics, and no telemetry. The only network request is an optional once-a-day look at this project's public release page, which you can turn off in the menu.</div></details>
+      <details><summary>How do I remove it?<span class="pm"></span></summary><div class="ans">Run <code>sudo unrestor uninstall</code> to stop the service and restore your sleep setting, then <code>brew uninstall --cask unrestor</code>.</div></details>
+      <details><summary>Which Macs and macOS versions work?<span class="pm"></span></summary><div class="ans">macOS 14 (Sonoma) or later, on Apple silicon and Intel.</div></details>
+      <details><summary>Can I contribute?<span class="pm"></span></summary><div class="ans">Not code. Unrestor is open source but not open for contributions, and outside pull requests are rejected. Forks are welcome, and issues are welcome with no guarantee of a reply or a fix.</div></details>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="wrap">
+    <div class="cta-card" data-r>
+      <img src="icon-512.png" alt="" width="84" height="84">
+      <h2>Close the lid. <span class="g">Keep going.</span></h2>
+      <div class="install">
+        <span class="tag"><svg><use href="#i-mug"/></svg>Homebrew</span>
+        <code><span class="t-cmd">brew</span> <span class="t-arg">install</span> <span class="t-flag">--cask</span> <span class="t-arg">GAM3RG33K/tap/unrestor</span></code>
+        <button class="copy" type="button" data-copy="brew install --cask GAM3RG33K/tap/unrestor" aria-label="Copy the install command"><svg class="cp"><use href="#i-copy"/></svg><svg class="ok"><use href="#i-check"/></svg></button>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
 
 <footer>
   <div class="wrap">
-    <div class="fgrid">
+    <div class="foot">
       <div>
-        <a class="brand" href="#top"><svg viewBox="0 0 64 64" aria-hidden="true" style="width:24px;height:24px"><defs><linearGradient id="gf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc66b"/><stop offset="1" stop-color="#e8831a"/></linearGradient></defs><path d="M4 32C12 19 22 12 32 12C42 12 52 19 60 32C52 45 42 52 32 52C22 52 12 45 4 32Z" fill="none" stroke="url(#gf)" stroke-width="5.5" stroke-linejoin="round"/><path d="M44.46 36.28A13.5 13.5 0 1 1 32.53 19.04A10.5 10.5 0 1 0 44.46 36.28Z" fill="url(#gf)"/></svg>Unrestor</a>
-        <p style="margin-top:10px;max-width:22em">Close the lid. Your work keeps running.</p>
-        <div class="stats">
-          <span>★ <span class="stat" data-n="__STARS__"></span> stars</span>
-          <span>⑂ <span class="stat" data-n="__FORKS__"></span> forks</span>
-          <span>↓ <span class="stat" data-n="__DOWNLOADS__"></span> downloads</span>
-        </div>
+        <a class="brand" href="#top"><img src="mark.svg" alt="" width="34" height="34">Unrestor</a>
+        <p>Close the lid. Your work keeps running. A free, open-source keep-awake tool for macOS.</p>
       </div>
-      <div><h4>Product</h4><a href="#night">How it works</a><a href="#commands">Commands</a><a href="#safety">Safety</a><a href="#install">Install</a></div>
-      <div><h4>Project</h4><a href="https://github.com/GAM3RG33K/unrestor">GitHub</a><a href="https://github.com/GAM3RG33K/unrestor/releases">Releases</a><a href="https://github.com/GAM3RG33K/unrestor/issues">Issues</a><a href="https://github.com/GAM3RG33K/unrestor/blob/main/CONTRIBUTING.md">Fork it</a></div>
-      <div><h4>Legal</h4><a href="https://github.com/GAM3RG33K/unrestor/blob/main/LICENSE">Apache-2.0</a><a href="https://github.com/GAM3RG33K/unrestor/blob/main/SECURITY.md">Security</a><a href="https://github.com/GAM3RG33K/unrestor/blob/main/NOTICE">Credits</a></div>
+      <div><h4>Project</h4><a href="https://github.com/GAM3RG33K/unrestor" rel="noopener">GitHub</a><a href="https://github.com/GAM3RG33K/unrestor/releases" rel="noopener">Releases</a><a href="https://github.com/GAM3RG33K/unrestor/issues" rel="noopener">Issues</a></div>
+      <div><h4>Learn</h4><a href="https://github.com/GAM3RG33K/unrestor#readme" rel="noopener">Documentation</a><a href="https://github.com/GAM3RG33K/unrestor/blob/main/docs/ARCHITECTURE.md" rel="noopener">Architecture</a><a href="https://github.com/GAM3RG33K/unrestor/blob/main/SECURITY.md" rel="noopener">Security</a></div>
+      <div><h4>Elsewhere</h4><a href="llms.txt">llms.txt</a><a href="https://github.com/GAM3RG33K/unrestor/blob/main/CONTRIBUTING.md" rel="noopener">Contribution policy</a><a href="https://github.com/GAM3RG33K/unrestor/blob/main/LICENSE" rel="noopener">Apache-2.0 license</a></div>
     </div>
     <div class="legal">
-      <span class="privacy">No analytics. No cookies. No third-party requests. The app's only network call is an optional daily update check you can turn off.</span>
-      <span>Derived from <a href="https://github.com/ruban-24/letitbrew" style="display:inline">Let It Brew</a> (Apache-2.0).</span>
+      <span>Started from <a href="https://github.com/ruban-24/letitbrew" rel="noopener">Let It Brew</a> by Ruban (Apache-2.0). No cookies, no analytics.</span>
+      <span>macOS and Mac are trademarks of Apple Inc. Unrestor is not affiliated with Apple.</span>
     </div>
   </div>
 </footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function(s,r){return (r||document).querySelector(s)};
+  var $$ = function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+
+  /* nav state */
+  var nav = $('#nav');
+  var onScroll = function(){ nav.classList.toggle('scrolled', window.scrollY > 24) };
+  onScroll(); window.addEventListener('scroll', onScroll, {passive:true});
+
+  /* active section link + reveal on scroll */
+  var links = $$('.pill-nav a'), map = {};
+  links.forEach(function(a){ map[a.getAttribute('href')] = a });
+  if ('IntersectionObserver' in window) {
+    var so = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if (e.isIntersecting) {
+          links.forEach(function(l){l.classList.remove('on')});
+          var a = map['#'+e.target.id]; if (a) a.classList.add('on');
+        }
+      });
+    }, {rootMargin:'-45% 0px -50% 0px'});
+    ['#top','#how','#features','#safety','#faq'].forEach(function(id){ var s = $(id); if (s) so.observe(s) });
+
+    var ro = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('in'); ro.unobserve(e.target) } });
+    }, {threshold:.12, rootMargin:'0px 0px -6% 0px'});
+    $$('[data-r]').forEach(function(el){ ro.observe(el) });
+  } else {
+    $$('[data-r]').forEach(function(el){ el.classList.add('in') });
+  }
+
+  /* copy buttons */
+  $$('.copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var text = btn.getAttribute('data-copy');
+      var done = function(){ btn.classList.add('done'); setTimeout(function(){btn.classList.remove('done')}, 1800) };
+      var fallback = function(){
+        var t = document.createElement('textarea'); t.value = text; t.setAttribute('readonly','');
+        t.style.position='fixed'; t.style.opacity='0'; document.body.appendChild(t); t.select();
+        try { document.execCommand('copy'); done() } catch(e){}
+        document.body.removeChild(t);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+      else fallback();
+    });
+  });
+
+  function fmt(s){ var h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; return h+':'+(m<10?'0':'')+m+':'+(x<10?'0':'')+x }
+  if (reduce) return;
+
+  /* feature tile countdown */
+  var big = $('#bigcd');
+  if (big) {
+    var left = 2*3600 - 18, node = big.firstChild;
+    setInterval(function(){ left = left>0 ? left-1 : 2*3600; node.nodeValue = fmt(left) }, 1000);
+  }
+
+  /* hero scene: a looping demo that pauses while off screen */
+  var stage = $('#stage'), term = $('#term'), cd = $('#cd');
+  if (!stage || !term || !cd) return;
+  var visible = false;
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function(e){ visible = e[0].isIntersecting }, {threshold:.2}).observe(stage);
+  } else visible = true;
+  var wait = function(ms){ return new Promise(function(r){ setTimeout(r, ms) }) };
+  var until = function(){ return new Promise(function(r){ (function chk(){ visible ? r() : setTimeout(chk, 250) })() }) };
+  var secs = 0, timer = null;
+  function startCount(){ stopCount(); secs = 2*3600; cd.textContent = fmt(secs); timer = setInterval(function(){ secs--; cd.textContent = fmt(secs) }, 1000) }
+  function stopCount(){ if (timer) { clearInterval(timer); timer = null } }
+  function line(text, cls){
+    var s = document.createElement('span'); s.className = 'ln' + (cls ? ' '+cls : ''); s.textContent = text; term.appendChild(s);
+  }
+  async function typeCmd(text){
+    var el = document.createElement('span'); el.className = 'ln';
+    el.innerHTML = '<span class="p">~/app</span> <span class="dim">%</span> <span class="typed"></span><span class="caret"></span>';
+    term.appendChild(el);
+    var t = el.querySelector('.typed');
+    for (var i=0;i<text.length;i++){ await until(); t.textContent += text[i]; await wait(34 + Math.random()*40) }
+    await wait(350); var c = el.querySelector('.caret'); if (c) c.remove();
+  }
+  async function loop(){
+    for(;;){
+      await until();
+      stage.classList.remove('on','closed'); stopCount();
+      term.innerHTML = ''; cd.textContent = '2:00:00';
+      await wait(1100);
+      await typeCmd('unrestor run --for 2h -- npm run build');
+      stage.classList.add('on'); startCount();
+      line('holding the Mac awake', 'good');
+      await wait(900); await until();
+      stage.classList.add('closed');
+      var out = ['> compiling 214 modules','> optimizing assets','> writing bundle'];
+      for (var i=0;i<out.length;i++){ line(out[i], 'dim'); await wait(1300); await until() }
+      line('lid closed. still running.', 'warn');
+      await wait(2600); await until();
+      line('build finished. exit 0', 'good');
+      await wait(700);
+      line('hold released. your Mac can sleep.', 'dim');
+      stage.classList.remove('on','closed'); stopCount(); cd.textContent = '2:00:00';
+      await wait(3600);
+    }
+  }
+  loop();
+})();
+</script>
 </body>
 </html>

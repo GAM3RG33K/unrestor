@@ -1,0 +1,33 @@
+# Unrestor
+
+> Unrestor is a free, open-source macOS menu-bar app and command-line tool that keeps a MacBook awake with the lid closed while a command, process, or timer runs, then lets it sleep again. Battery and heat limits are enforced by a small background service and always win. No account, no analytics, no tracking. Apache-2.0. Requires macOS 14 or later.
+
+Unrestor is a personal project that is open source but not open for contributions: outside pull requests are rejected, forks are welcome, and issues are welcome with no guarantee of a reply or fix.
+
+Install (Homebrew), then set up the background service once:
+
+    brew install --cask GAM3RG33K/tap/unrestor
+    sudo unrestor install
+
+Typical use:
+
+    unrestor run -- npm run build        # awake only while the command runs
+    unrestor run --for 2h -- claude      # any tool, capped at two hours
+    unrestor watch 4821                  # awake while process 4821 runs
+    unrestor hold --for 90m              # a plain keep-awake with a timer
+    unrestor status                      # what is holding the Mac awake, and why
+
+## Docs
+
+- [Website](__SITE_URL__/): overview, install command, FAQ
+- [README](https://github.com/GAM3RG33K/unrestor#readme): install options, commands, troubleshooting, updates, uninstall
+- [Architecture](https://github.com/GAM3RG33K/unrestor/blob/main/docs/ARCHITECTURE.md): how a hold works, the protocol, restore records, the updater
+- [Security policy](https://github.com/GAM3RG33K/unrestor/blob/main/SECURITY.md): exactly what the root background service can and cannot do
+- [Distribution](https://github.com/GAM3RG33K/unrestor/blob/main/docs/DISTRIBUTION.md): builds, releases, the Homebrew tap, updates
+- [Contribution policy](https://github.com/GAM3RG33K/unrestor/blob/main/CONTRIBUTING.md): why pull requests are not accepted, and how to fork
+
+## Optional
+
+- [Releases](https://github.com/GAM3RG33K/unrestor/releases): DMGs built in the open with SHA-256 checksums
+- [Issues](https://github.com/GAM3RG33K/unrestor/issues): bug reports and ideas
+- [Full text for LLMs](__SITE_URL__/llms-full.txt)

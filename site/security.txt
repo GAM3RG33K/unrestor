@@ -1,0 +1,5 @@
+Contact: https://github.com/GAM3RG33K/unrestor/security/advisories/new
+Policy: https://github.com/GAM3RG33K/unrestor/blob/main/SECURITY.md
+Preferred-Languages: en
+Canonical: __SITE_URL__/.well-known/security.txt
+Expires: 2027-11-17T00:00:00.000Z

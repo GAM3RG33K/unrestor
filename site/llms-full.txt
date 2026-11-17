@@ -1,0 +1,68 @@
+# Unrestor: full reference
+
+Unrestor keeps a MacBook awake with the lid closed for exactly as long as a command, a process, or a timer needs it. Then it lets go and the Mac sleeps again.
+
+Site: __SITE_URL__/
+Repository: https://github.com/GAM3RG33K/unrestor
+License: Apache-2.0
+Platform: macOS 14 (Sonoma) or later, Apple silicon and Intel
+Price: free
+Project status: a personal project, open source but not open for contributions. Outside pull requests are rejected. Forks are welcome. Issues are welcome, with no guarantee of a reply, fix, or timeline.
+
+## What problem it solves
+
+A MacBook sleeps when the lid closes unless a charger, an external display, and a keyboard are attached. The caffeinate command does not reliably prevent lid-close sleep. `sudo pmset -a disablesleep 1` does, but it is global and easy to forget: a crash, a forgotten off switch, or a reboot can leave a Mac awake in a bag. Unrestor is a careful wrapper around that one setting.
+
+## How it behaves
+
+- A hold lives and dies with the command, process, or timer that asked for it.
+- If the command exits, the terminal closes, or the connection drops, a background service releases the hold and restores the original sleep setting, including after a crash or reboot.
+- Works on battery. Lid-closed holds do not need a charger.
+- Limits always win: the Mac sleeps again below a battery floor (default 20%, adjustable from 10% to 50%, never below 10%), when it runs hot, or, if power-only is chosen, when unplugged. The background service enforces these itself.
+- Works with any program started from a terminal.
+
+## Install
+
+    brew install --cask GAM3RG33K/tap/unrestor
+    sudo unrestor install
+
+The second command installs the small background service once and asks for a password. Check it with `unrestor status`.
+
+## Commands
+
+- `unrestor run [--for TIME] [--name NAME] -- COMMAND`: awake until COMMAND exits; its exit code passes through.
+- `unrestor watch PID [--for TIME] [--name NAME]`: awake while process PID runs.
+- `unrestor hold [--for TIME]`: awake until Ctrl-C, or until TIME passes.
+- `unrestor status`: whether the service runs and what is holding the Mac awake.
+- `unrestor install` and `unrestor uninstall`: add or remove the background service (needs sudo).
+- `unrestor help` and `unrestor --version`.
+
+TIME looks like 90m, 2h, 1h30m, or 45s. A bare number means minutes.
+
+## Menu-bar app
+
+A Keep Mac awake switch with a live countdown, one-tap timers (30m, 1h, 2h, 4h, 8h), a list of what is holding the Mac awake, a battery floor, only-while-connected-to-power, Low Power Mode while awake, launch at login, and update checks. The command-line tool works without the app running.
+
+## The background service and safety
+
+The service runs as root. It accepts three newline-delimited text commands on a Unix socket (HELLO, HOLD, RELEASE), changes one system setting with fixed pmset arguments, and cannot run client commands or read files. The socket belongs to the user who installed it (mode 0600) and the daemon re-checks the peer's user id on every connection. The daemon enforces the battery floor, heat release, and a ten-second lease. Before changing the setting it records the original value in a root-only folder and restores it at the next launch.
+
+## Privacy
+
+No account, no analytics, no telemetry, no cookies. The only network request is an optional once-a-day look at the project's public GitHub release page for updates, which can be turned off. The request carries no version, identifier, or cookie.
+
+## Updates
+
+Direct installs update in place: the app downloads the release DMG over HTTPS, checks its SHA-256, verifies the app, swaps it in, and restarts. Homebrew installs update through Homebrew: the app opens Terminal and runs `brew update && brew upgrade --cask GAM3RG33K/tap/unrestor && sudo unrestor install`. Releases are ad-hoc signed and not notarized (no paid Apple developer account), so the checksum protects against corruption, not a compromised GitHub account.
+
+## Uninstall
+
+    sudo unrestor uninstall
+    brew uninstall --cask unrestor
+
+## Links
+
+- README: https://github.com/GAM3RG33K/unrestor#readme
+- Architecture: https://github.com/GAM3RG33K/unrestor/blob/main/docs/ARCHITECTURE.md
+- Security: https://github.com/GAM3RG33K/unrestor/blob/main/SECURITY.md
+- Issues: https://github.com/GAM3RG33K/unrestor/issues

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#171d33"/><stop offset="1" stop-color="#0a0c13"/></linearGradient>
+  <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffb347" stop-opacity=".34"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient>
+  <linearGradient id="amber" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc66b"/><stop offset="1" stop-color="#e8831a"/></linearGradient>
+</defs>
+<rect width="1200" height="630" fill="url(#bg)"/>
+<circle cx="1010" cy="120" r="470" fill="url(#glow)"/>
+<g fill="#fff">
+  <circle cx="90" cy="90" r="2.4" opacity=".7"/><circle cx="210" cy="520" r="2" opacity=".5"/><circle cx="470" cy="60" r="2.6" opacity=".6"/>
+  <circle cx="620" cy="560" r="2" opacity=".5"/><circle cx="760" cy="150" r="2.2" opacity=".6"/><circle cx="1130" cy="470" r="2.4" opacity=".6"/>
+  <circle cx="330" cy="300" r="1.8" opacity=".4"/><circle cx="1090" cy="300" r="1.8" opacity=".5"/><circle cx="900" cy="560" r="2" opacity=".4"/>
+</g>
+<g transform="translate(86 96) scale(3.4)">
+  <path d="M4 32C12 19 22 12 32 12C42 12 52 19 60 32C52 45 42 52 32 52C22 52 12 45 4 32Z" fill="none" stroke="url(#amber)" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M44.46 36.28A13.5 13.5 0 1 1 32.53 19.04A10.5 10.5 0 1 0 44.46 36.28Z" fill="url(#amber)"/>
+</g>
+<text x="86" y="372" font-family="Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="92" font-weight="600" fill="#f4f1ea" letter-spacing="-3">Close the lid.</text>
+<text x="86" y="470" font-family="Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="92" font-weight="600" fill="#6e728a" letter-spacing="-3">Your work keeps running.</text>
+<text x="88" y="552" font-family="Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="500" fill="#a6a9ba">Unrestor · free, open-source keep-awake for macOS</text>
+<rect x="906" y="508" width="208" height="56" rx="28" fill="#f4f1ea"/>
+<text x="1010" y="544" text-anchor="middle" font-family="Menlo, monospace" font-size="21" font-weight="600" fill="#0d0f17">brew install</text>
+</svg>
