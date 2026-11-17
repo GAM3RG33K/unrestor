@@ -11,7 +11,7 @@ cask "unrestor" do
   desc "Keep your MacBook awake with the lid closed while work runs"
   homepage "https://github.com/GAM3RG33K/unrestor"
 
-  depends_on macos: ">= :sonoma"
+  depends_on macos: :sonoma
 
   app "Unrestor.app"
   binary "#{appdir}/Unrestor.app/Contents/Helpers/unrestor"
