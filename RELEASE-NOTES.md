@@ -1,5 +1,9 @@
 # Release notes
 
+## 0.1.4
+
+- No code changes. Used to verify updating through Homebrew.
+
 ## 0.1.3
 
 - Cask uses Homebrew's current `depends_on macos` syntax.
